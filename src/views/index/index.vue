@@ -35,7 +35,7 @@
               <proposal-item
                 v-for="item in list"
                 :key="item.uuid"
-                :value="{ subject: item.title, status: item.status }"
+                :value="{ subject: item.title, status: item.status, type: item.type, createdAt: item.created_at }"
                 :to="{ name: 'index' }"
               />
             </van-list>
@@ -61,7 +61,7 @@
               <proposal-item
                 v-for="item in list"
                 :key="item.uuid"
-                :value="{ subject: item.title, status: item.status }"
+                :value="{ subject: item.title, status: item.status, type: item.type, createdAt: item.created_at }"
                 :to="{ name: 'index' }"
               />
             </van-list>
@@ -87,7 +87,7 @@
               <proposal-item
                 v-for="item in list"
                 :key="item.uuid"
-                :value="{ subject: item.title, status: item.status }"
+                :value="{ subject: item.title, status: item.status, type: item.type, createdAt: item.created_at }"
                 :to="{ name: 'index' }"
               />
             </van-list>
@@ -113,7 +113,7 @@
               <proposal-item
                 v-for="item in list"
                 :key="item.uuid"
-                :value="{ subject: item.title, status: item.status }"
+                :value="{ subject: item.title, status: item.status, type: item.type, createdAt: item.created_at }"
                 :to="{ name: 'index' }"
               />
             </van-list>
@@ -155,8 +155,6 @@
 </template>
 
 <script>
-import axios from '@/plugins/axios';
-
 export default {
   data() {
     return {
@@ -193,7 +191,7 @@ export default {
   methods: {
     // 加载指定参数的待评价列表
     async fetchList(params) {
-      const response = await axios.post('/api/opinionSuggestion/getOpinionSuggestionList', params);
+      const response = await this.$axios.post('/api/opinionSuggestion/getOpinionSuggestionList', params);
       return {
         data: response.data.data,
         total: response.data.totalCount,
@@ -205,7 +203,7 @@ export default {
         unit: 15,
         page: this.page,
         status: this.tab,
-        // searchCondition: this.keywords ? this.keywords : undefined,
+        title: this.keywords ? this.keywords : undefined,
       });
       if (this.refreshing) {
         this.list = data;
@@ -214,7 +212,6 @@ export default {
         this.list.push(...data);
       }
       this.total = total;
-      this.total = this.list.length; // 测试用
       this.page += 1;
       this.loading = false;
       if (this.list.length === this.total) {
@@ -230,10 +227,10 @@ export default {
       this.$router.push({
         name: 'index',
         query: {
-          keywords: this.keywords,
+          keywords: this.keywords ? this.keywords : undefined,
           tab: this.tab,
         },
-      });
+      }).catch(() => {});
       this.onLoad();
     },
     // 搜索数据加载
@@ -246,10 +243,10 @@ export default {
       this.$router.push({
         name: 'index',
         query: {
-          keywords: this.keywords,
+          keywords: this.keywords ? this.keywords : undefined,
           tab: this.tab,
         },
-      });
+      }).catch(() => {});
       this.onLoad();
     },
     onTabChange() {
@@ -266,10 +263,10 @@ export default {
       this.$router.push({
         name: 'index',
         query: {
-          keywords: this.keywords,
+          keywords: this.keywords ? this.keywords : undefined,
           tab: this.tab,
         },
-      });
+      }).catch(() => {});
     },
   },
 };

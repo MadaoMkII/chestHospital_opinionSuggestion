@@ -19,14 +19,23 @@
     <div class="proposal-item__bottom">
       <div class="proposal-item__bottom__left">
         <van-tag
+          v-if="value.type === '意见'"
           plain
           class="proposal-item__type"
           type="primary"
         >
           意见
         </van-tag>
+        <van-tag
+          v-if="value.type === '建议'"
+          plain
+          class="proposal-item__type"
+          type="success"
+        >
+          建议
+        </van-tag>
         <div class="proposal-item__datetime">
-          2020-01-01 12:00
+          {{ formatDatetime(value.createdAt) }}
         </div>
       </div>
       <div class="proposal-item__status">

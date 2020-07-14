@@ -20,10 +20,10 @@
     padding-bottom: constant(safe-area-inset-bottom);
     padding-bottom: env(safe-area-inset-bottom);
 
-    .van-grid-item .van-grid-item__content {
-      &::after {
-        border: 0;
-      }
-    }
+    /*.van-grid-item .van-grid-item__content {*/
+    /*  &::after {*/
+    /*    border: 0;*/
+    /*  }*/
+    /*}*/
   }
 </style>

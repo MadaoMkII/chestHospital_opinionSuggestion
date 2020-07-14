@@ -38,6 +38,11 @@ const routes = [
     component: () => import('../views/login.vue'),
   },
   {
+    path: '/proposals/:id',
+    name: 'proposals-id',
+    component: () => import('../views/proposals/_id.vue'),
+  },
+  {
     path: '/test',
     name: 'test',
     component: () => import('../views/test.vue'),

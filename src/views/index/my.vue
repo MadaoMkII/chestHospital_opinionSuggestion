@@ -36,7 +36,7 @@
                 v-for="item in list"
                 :key="item.uuid"
                 :value="{ subject: item.title, status: item.status }"
-                :to="{ name: 'my' }"
+                :to="{ name: 'proposals-id', params: { id: item.uuid } }"
               />
             </van-list>
           </van-pull-refresh>
@@ -62,7 +62,7 @@
                 v-for="item in list"
                 :key="item.uuid"
                 :value="{ subject: item.title, status: item.status }"
-                :to="{ name: 'my' }"
+                :to="{ name: 'proposals-id', params: { id: item.uuid } }"
               />
             </van-list>
           </van-pull-refresh>
@@ -88,7 +88,7 @@
                 v-for="item in list"
                 :key="item.uuid"
                 :value="{ subject: item.title, status: item.status }"
-                :to="{ name: 'my' }"
+                :to="{ name: 'proposals-id', params: { id: item.uuid } }"
               />
             </van-list>
           </van-pull-refresh>
@@ -114,7 +114,7 @@
                 v-for="item in list"
                 :key="item.uuid"
                 :value="{ subject: item.title, status: item.status }"
-                :to="{ name: 'my' }"
+                :to="{ name: 'proposals-id', params: { id: item.uuid } }"
               />
             </van-list>
           </van-pull-refresh>

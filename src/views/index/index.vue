@@ -169,7 +169,7 @@ export default {
       keywords: '',
     };
   },
-  created() {
+  async created() {
     if (this.$route.query.keywords) {
       this.keywords = this.$route.query.keywords;
     }

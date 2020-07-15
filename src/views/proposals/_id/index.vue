@@ -91,6 +91,60 @@
             <span class="highlight">回复：</span>{{ opt.detail.content }}
           </template>
         </van-cell>
+        <van-cell
+          v-if="opt.action === '协同'"
+          class="opt-cell"
+          :key="i"
+        >
+          <template #title>
+            <div class="opt">
+              <div class="opt__user">
+                <div class="user">
+                  <van-image
+                    class="user__avatar"
+                    width="24px"
+                    height="24px"
+                    fit="cover"
+                    round
+                    :src="opt.operator.avatar"
+                  />
+                  <div class="user__name">
+                    <div class="van-ellipsis">
+                      {{ opt.operator.nickName }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="opt__datetime">
+                {{ formatDatetime(opt.created_at) }}
+              </div>
+            </div>
+          </template>
+          <template #label>
+            <div class="user-list">
+              <span class="highlight">设置协作人：</span>
+              <div
+                class="user"
+                v-for="user in opt.detail"
+                :key="user.USERID"
+              >
+                <van-image
+                  class="user__avatar"
+                  width="18px"
+                  height="18px"
+                  fit="cover"
+                  round
+                  :src="user.avatar"
+                />
+                <div class="user__name">
+                  <div class="van-ellipsis">
+                    {{ user.nickName }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </van-cell>
       </template>
     </van-cell-group>
     <div class="submit-bar">
@@ -109,7 +163,8 @@
         />
         <van-grid-item
           clickable
-          text="协同"
+          text="协作"
+          @click="$router.push({ name: 'proposals-id-cooperation-user-list-department-id', params: { id: $route.params.id, departmentId: '1' } })"
         />
         <van-grid-item
           clickable
@@ -143,6 +198,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .user-list {
+    display: inline-flex;
+    flex-wrap: wrap;
+
+    .user {
+      margin-right: 8px;
+    }
+  }
   .user {
     display: flex;
     align-items: center;

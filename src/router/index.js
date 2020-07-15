@@ -48,6 +48,11 @@ const routes = [
     component: () => import('../views/proposals/_id/replay.vue'),
   },
   {
+    path: '/proposals/:id/cooperation-user-list/:departmentId',
+    name: 'proposals-id-cooperation-user-list-department-id',
+    component: () => import('../views/proposals/_id/cooperation-user-list/_departmentId.vue'),
+  },
+  {
     path: '/test',
     name: 'test',
     component: () => import('../views/test.vue'),

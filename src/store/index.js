@@ -7,15 +7,15 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     user: null,
-    reviewTotal: 0,
-    supervisorUserList: [],
-    reviewerUserList: [],
-    interviewerUserList: [],
+    cooperationUserList: [],
     strict: true,
   },
   mutations: {
     setUser(state, user) {
       state.user = user;
+    },
+    setCooperationUserList(state, userList) {
+      state.cooperationUserList = userList;
     },
   },
   actions: {

@@ -40,7 +40,12 @@ const routes = [
   {
     path: '/proposals/:id',
     name: 'proposals-id',
-    component: () => import('../views/proposals/_id.vue'),
+    component: () => import('../views/proposals/_id/index.vue'),
+  },
+  {
+    path: '/proposals/:id/replay',
+    name: 'proposals-id-replay',
+    component: () => import('../views/proposals/_id/replay.vue'),
   },
   {
     path: '/test',

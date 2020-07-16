@@ -165,7 +165,7 @@ export default {
   methods: {
     // 加载指定参数的待评价列表
     async fetchList(params) {
-      const response = await this.$axios.post('/api/opinionSuggestion/getOpinionSuggestionList', params);
+      const response = await this.$axios.post('/api/opinionSuggestion/getMyOpinionSuggestionList', params);
       return {
         data: response.data.data,
         total: response.data.totalCount,

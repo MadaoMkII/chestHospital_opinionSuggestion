@@ -98,7 +98,7 @@
           </template>
         </van-cell>
         <van-cell
-          v-if="opt.action === '协同'"
+          v-else-if="opt.action === '协同'"
           class="opt-cell"
           :key="i"
         >
@@ -152,7 +152,7 @@
           </template>
         </van-cell>
         <van-cell
-          v-if="opt.action === '指派'"
+          v-else-if="opt.action === '指派'"
           class="opt-cell"
           :key="i"
         >
@@ -198,6 +198,44 @@
                   </div>
                 </div>
               </div>
+            </div>
+          </template>
+        </van-cell>
+        <van-cell
+          v-else
+          class="opt-cell"
+          :key="i"
+        >
+          <template #title>
+            <div class="opt">
+              <div class="opt__user">
+                <div class="user">
+                  <van-image
+                    class="user__avatar"
+                    width="24px"
+                    height="24px"
+                    fit="cover"
+                    round
+                    :src="opt.operator.avatar"
+                  />
+                  <div class="user__name">
+                    <div class="van-ellipsis">
+                      {{ opt.operator.nickName }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="opt__datetime">
+                {{ formatDatetime(opt.created_at) }}
+              </div>
+            </div>
+          </template>
+          <template #label>
+            <div class="user-list">
+              <span class="highlight">未处理格式化：</span>
+              <pre>
+                {{ opt.detail }}
+              </pre>
             </div>
           </template>
         </van-cell>

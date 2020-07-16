@@ -177,7 +177,7 @@ export default {
           category: form.category,
           content: form.content,
           isAnonymity: form.isAnonymous,
-          accessoryUrl: 'https://www.baidu.com/',
+          // accessoryUrl: 'https://www.baidu.com/',
         });
         this.$notify({ type: 'success', message: `${this.type}发布成功` });
         this.$router.push({ name: 'my' });

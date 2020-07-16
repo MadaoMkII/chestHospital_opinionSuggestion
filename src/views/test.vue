@@ -8,6 +8,7 @@ export default {
     if (this.$route.query.userid) {
       await this.$axios.post('/api/user/login', { USERID: this.$route.query.userid });
       await this.$router.push({ name: 'index' });
+      window.location.reload();
     }
   },
 };

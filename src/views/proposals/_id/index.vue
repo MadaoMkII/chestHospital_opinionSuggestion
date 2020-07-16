@@ -145,6 +145,56 @@
             </div>
           </template>
         </van-cell>
+        <van-cell
+          v-if="opt.action === '指派'"
+          class="opt-cell"
+          :key="i"
+        >
+          <template #title>
+            <div class="opt">
+              <div class="opt__user">
+                <div class="user">
+                  <van-image
+                    class="user__avatar"
+                    width="24px"
+                    height="24px"
+                    fit="cover"
+                    round
+                    :src="opt.operator.avatar"
+                  />
+                  <div class="user__name">
+                    <div class="van-ellipsis">
+                      {{ opt.operator.nickName }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="opt__datetime">
+                {{ formatDatetime(opt.created_at) }}
+              </div>
+            </div>
+          </template>
+          <template #label>
+            <div class="user-list">
+              <span class="highlight">指派给：</span>
+              <div class="user">
+                <van-image
+                  class="user__avatar"
+                  width="18px"
+                  height="18px"
+                  fit="cover"
+                  round
+                  :src="opt.detail.avatar"
+                />
+                <div class="user__name">
+                  <div class="van-ellipsis">
+                    {{ opt.detail.nickName }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </van-cell>
       </template>
     </van-cell-group>
     <div class="submit-bar">
@@ -160,6 +210,7 @@
         <van-grid-item
           clickable
           text="指派"
+          @click="$router.push({ name: 'proposals-id-set-principal-department-id', params: { id: $route.params.id, departmentId: '1' } })"
         />
         <van-grid-item
           clickable

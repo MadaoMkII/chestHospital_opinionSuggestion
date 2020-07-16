@@ -53,6 +53,11 @@ const routes = [
     component: () => import('../views/proposals/_id/cooperation-user-list/_departmentId.vue'),
   },
   {
+    path: '/proposals/:id/set-principal/:departmentId',
+    name: 'proposals-id-set-principal-department-id',
+    component: () => import('../views/proposals/_id/set-principal/_departmentId.vue'),
+  },
+  {
     path: '/test',
     name: 'test',
     component: () => import('../views/test.vue'),

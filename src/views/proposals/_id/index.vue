@@ -198,44 +198,71 @@
       </template>
     </van-cell-group>
     <div class="submit-bar">
-      <van-grid
-        clickable
-        :column-num="4"
-      >
-        <van-grid-item
-          clickable
-          text="回复"
-          @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
-        />
-        <van-grid-item
-          clickable
-          text="指派"
-          @click="$router.push({ name: 'proposals-id-set-principal-department-id', params: { id: $route.params.id, departmentId: '1' } })"
-        />
-        <van-grid-item
-          clickable
-          text="协作"
-          @click="$router.push({ name: 'proposals-id-cooperation-user-list-department-id', params: { id: $route.params.id, departmentId: '1' } })"
-        />
-        <van-grid-item
-          clickable
-          text="处理"
-        />
-      </van-grid>
+      <template v-if="user.privileges.isUnionAdministrator">
+        <template v-if="proposal.status === '未处理' || proposal.status === '处理中'">
+          <van-grid
+            clickable
+            :column-num="4"
+          >
+            <van-grid-item
+              clickable
+              text="回复"
+              @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+            />
+            <van-grid-item
+              v-if="!proposal.principal"
+              clickable
+              text="指派"
+              @click="$router.push({ name: 'proposals-id-set-principal-department-id', params: { id: $route.params.id, departmentId: '1' } })"
+            />
+            <van-grid-item
+              v-else
+              clickable
+              text="退回"
+              @click="deletePrincipal()"
+            />
+            <van-grid-item
+              clickable
+              text="协作"
+              @click="$router.push({ name: 'proposals-id-cooperation-user-list-department-id', params: { id: $route.params.id, departmentId: '1' } })"
+            />
+            <van-grid-item
+              clickable
+              text="处理"
+              @click="setPending()"
+            />
+          </van-grid>
+        </template>
+        <template v-if="proposal.status === '已处理待审批'">
+          <van-grid
+            clickable
+            :column-num="1"
+          >
+            <van-grid-item
+              clickable
+              text="回复"
+              @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+            />
+          </van-grid>
+        </template>
+      </template>
     </div>
   </div>
 </template>
 
 <script>
 import { HelperMixin } from '@/mixins';
+import { mapState } from 'vuex';
 
 export default {
   mixins: [HelperMixin],
   data() {
     return {
+      isLoading: false,
       proposal: null,
     };
   },
+  computed: mapState(['user']),
   async created() {
     this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
   },
@@ -243,6 +270,44 @@ export default {
     async fetchProposal(params) {
       const response = await this.$axios.post('/api/opinionSuggestion/getOpinionSuggestionDetail', params);
       return response.data.data;
+    },
+    async deletePrincipal() {
+      if (this.isLoading) return;
+      try {
+        this.isLoading = true;
+        await this.$axios.post('/api/opinionSuggestion/rejectOpinionSuggestion', {
+          uuid: this.$route.params.id,
+        });
+        this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
+        this.$notify({ type: 'success', message: '删除负责人成功' });
+      } catch (e) {
+        if (e.response.data && e.response.data.message) {
+          this.$notify({ type: 'danger', message: e.response.data.message });
+        } else {
+          this.$notify({ type: 'danger', message: '请求失败，服务器发生错误' });
+        }
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async setPending() {
+      if (this.isLoading) return;
+      try {
+        this.isLoading = true;
+        await this.$axios.post('/api/opinionSuggestion/handleOpinionSuggestion', {
+          uuid: this.$route.params.id,
+        });
+        this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
+        this.$notify({ type: 'success', message: '处理成功' });
+      } catch (e) {
+        if (e.response.data && e.response.data.message) {
+          this.$notify({ type: 'danger', message: e.response.data.message });
+        } else {
+          this.$notify({ type: 'danger', message: '请求失败，服务器发生错误' });
+        }
+      } finally {
+        this.isLoading = false;
+      }
     },
   },
 };

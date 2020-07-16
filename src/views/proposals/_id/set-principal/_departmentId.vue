@@ -139,10 +139,12 @@ export default {
     back() {
       this.deep -= 1;
       this.$router.back();
+      this.selectedUserId = null;
     },
     next(departmentId) {
       this.deep += 1;
       this.$router.push({ name: 'proposals-id-set-principal-department-id', params: { id: this.$route.params.id, departmentId } });
+      this.selectedUserId = null;
     },
     async confirm() {
       if (!this.selectedUserId) {

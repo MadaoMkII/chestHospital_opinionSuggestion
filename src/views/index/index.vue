@@ -176,6 +176,7 @@ export default {
     if (this.$route.query.tab) {
       this.tab = this.$route.query.tab;
     }
+    console.log(await this.$axios.get('/api/management/getApartmentManagement'));
   },
   beforeRouteUpdate(to, from, next) {
     if (to.query.keywords) {

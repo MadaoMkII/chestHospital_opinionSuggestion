@@ -1,7 +1,7 @@
 <template>
   <div
-    class="has-submit-bar"
     v-if="proposal"
+    :class="{ 'has-submit-bar': isUnionAdministratorStatus || isPrincipalStatus || isApprovalLeaderStatus || isCollaboratorStatus }"
   >
     <van-nav-bar
       title="意见建议"
@@ -11,6 +11,12 @@
       fixed
       placeholder
     />
+    <pre>
+      isUnionAdministrator: {{ isUnionAdministrator }}
+      isPrincipal: {{ isPrincipal }}
+      isApprovalLeader: {{ isApprovalLeader }}
+      isCollaborator: {{ isCollaborator }}
+    </pre>
     <van-cell-group title="基本信息">
       <van-cell
         :title="`关于【${proposal.title}】的${proposal.type}`"
@@ -197,56 +203,182 @@
         </van-cell>
       </template>
     </van-cell-group>
-    <div class="submit-bar">
-      <template v-if="user.privileges.isUnionAdministrator">
-        <template v-if="proposal.status === '未处理' || proposal.status === '处理中'">
-          <van-grid
+    <!-- 工会管理员的操作选项 -->
+    <div
+      v-if="isUnionAdministratorStatus"
+      class="submit-bar"
+    >
+      <template v-if="proposal.status === '未处理'">
+        <van-grid
+          clickable
+          :column-num="3"
+        >
+          <van-grid-item
             clickable
-            :column-num="4"
-          >
-            <van-grid-item
-              clickable
-              text="回复"
-              @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
-            />
-            <van-grid-item
-              v-if="!proposal.principal"
-              clickable
-              text="指派"
-              @click="$router.push({ name: 'proposals-id-set-principal-department-id', params: { id: $route.params.id, departmentId: '1' } })"
-            />
-            <van-grid-item
-              v-else
-              clickable
-              text="退回"
-              @click="deletePrincipal()"
-            />
-            <van-grid-item
-              clickable
-              text="协作"
-              @click="$router.push({ name: 'proposals-id-cooperation-user-list-department-id', params: { id: $route.params.id, departmentId: '1' } })"
-            />
-            <van-grid-item
-              clickable
-              text="处理"
-              @click="setPending()"
-            />
-          </van-grid>
-        </template>
-        <template v-if="proposal.status === '已处理待审批'">
-          <van-grid
+            text="回复"
+            @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+          />
+          <van-grid-item
+            v-if="!proposal.principal"
             clickable
-            :column-num="1"
-          >
-            <van-grid-item
-              clickable
-              text="回复"
-              @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
-            />
-          </van-grid>
-        </template>
+            text="指派"
+            @click="$router.push({ name: 'proposals-id-set-principal-department-id', params: { id: $route.params.id, departmentId: '1' } })"
+          />
+          <van-grid-item
+            v-else
+            clickable
+            text="退回"
+            @click="deletePrincipal()"
+          />
+          <van-grid-item
+            clickable
+            text="协作"
+            @click="$router.push({ name: 'proposals-id-cooperation-user-list-department-id', params: { id: $route.params.id, departmentId: '1' } })"
+          />
+        </van-grid>
+      </template>
+      <template v-else-if="proposal.status === '处理中'">
+        <van-grid
+          clickable
+          :column-num="4"
+        >
+          <van-grid-item
+            clickable
+            text="回复"
+            @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+          />
+          <van-grid-item
+            v-if="!proposal.principal"
+            clickable
+            text="指派"
+            @click="$router.push({ name: 'proposals-id-set-principal-department-id', params: { id: $route.params.id, departmentId: '1' } })"
+          />
+          <van-grid-item
+            v-else
+            clickable
+            text="退回"
+            @click="deletePrincipal()"
+          />
+          <van-grid-item
+            clickable
+            text="协作"
+            @click="$router.push({ name: 'proposals-id-cooperation-user-list-department-id', params: { id: $route.params.id, departmentId: '1' } })"
+          />
+          <van-grid-item
+            clickable
+            text="处理"
+            @click="setPending()"
+          />
+        </van-grid>
+      </template>
+      <template v-else-if="proposal.status === '已处理待审批'">
+        <van-grid
+          clickable
+          :column-num="1"
+        >
+          <van-grid-item
+            clickable
+            text="回复"
+            @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+          />
+        </van-grid>
       </template>
     </div>
+    <!-- 工会管理员的操作选项结束 -->
+    <!-- 我是负责人时的操作选项 -->
+    <div
+      v-else-if="isPrincipalStatus"
+      class="submit-bar"
+    >
+      <template v-if="proposal.status === '处理中'">
+        <van-grid
+          clickable
+          :column-num="4"
+        >
+          <van-grid-item
+            clickable
+            text="回复"
+            @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+          />
+          <van-grid-item
+            clickable
+            text="退回"
+            @click="deletePrincipal()"
+          />
+          <van-grid-item
+            clickable
+            text="协作"
+            @click="$router.push({ name: 'proposals-id-cooperation-user-list-department-id', params: { id: $route.params.id, departmentId: '1' } })"
+          />
+          <van-grid-item
+            clickable
+            text="处理"
+            @click="setPending()"
+          />
+        </van-grid>
+      </template>
+      <template v-else-if="proposal.status === '已处理待审批'">
+        <van-grid
+          clickable
+          :column-num="1"
+        >
+          <van-grid-item
+            clickable
+            text="回复"
+            @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+          />
+        </van-grid>
+      </template>
+    </div>
+    <!-- 我是负责人时的操作选项结束 -->
+    <!-- 我是协作人时的操作选项 -->
+    <div
+      v-else-if="isCollaboratorStatus"
+      class="submit-bar"
+    >
+      <template v-if="proposal.status === '处理中' || proposal.status === '已处理待审批'">
+        <van-grid
+          clickable
+          :column-num="1"
+        >
+          <van-grid-item
+            clickable
+            text="回复"
+            @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+          />
+        </van-grid>
+      </template>
+    </div>
+    <!-- 我是协作人时的操作选项结束 -->
+    <!-- 我是审批领导时的操作选项-->
+    <div
+      v-else-if="isApprovalLeaderStatus"
+      class="submit-bar"
+    >
+      <template v-if="proposal.status === '已处理待审批'">
+        <van-grid
+          clickable
+          :column-num="3"
+        >
+          <van-grid-item
+            clickable
+            text="回复"
+            @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+          />
+          <van-grid-item
+            clickable
+            text="审批不通过"
+            @click="setApproval(false)"
+          />
+          <van-grid-item
+            clickable
+            text="审批通过"
+            @click="setApproval(true)"
+          />
+        </van-grid>
+      </template>
+    </div>
+    <!-- 我是审批领导时的操作选项结束-->
   </div>
 </template>
 
@@ -262,7 +394,33 @@ export default {
       proposal: null,
     };
   },
-  computed: mapState(['user']),
+  computed: {
+    ...mapState(['user']),
+    isPrincipal() {
+      return this.proposal.principal !== undefined && this.proposal.principal.USERID === this.user.USERID;
+    },
+    isPrincipalStatus() {
+      return this.isPrincipal && (this.proposal.status === '处理中' || this.proposal.status === '已处理待审批');
+    },
+    isUnionAdministrator() {
+      return this.user.privileges.isUnionAdministrator;
+    },
+    isUnionAdministratorStatus() {
+      return this.isUnionAdministrator && (this.proposal.status === '未处理' || this.proposal.status === '处理中' || this.proposal.status === '已处理待审批');
+    },
+    isApprovalLeader() {
+      return this.proposal.dean !== undefined && this.proposal.dean.USERID === this.user.USERID;
+    },
+    isApprovalLeaderStatus() {
+      return this.isApprovalLeader && (this.proposal.status === '已处理待审批');
+    },
+    isCollaborator() {
+      return this.proposal.assistant !== undefined && this.proposal.assistant.findIndex((user) => user.USERID === this.user.USERID) !== -1;
+    },
+    isCollaboratorStatus() {
+      return this.isCollaborator && (this.proposal.status === '处理中' || this.proposal.status === '已处理待审批');
+    },
+  },
   async created() {
     this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
   },
@@ -299,6 +457,26 @@ export default {
         });
         this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
         this.$notify({ type: 'success', message: '处理成功' });
+      } catch (e) {
+        if (e.response.data && e.response.data.message) {
+          this.$notify({ type: 'danger', message: e.response.data.message });
+        } else {
+          this.$notify({ type: 'danger', message: '请求失败，服务器发生错误' });
+        }
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async setApproval(is) {
+      if (this.isLoading) return;
+      try {
+        this.isLoading = true;
+        await this.$axios.post('/api/opinionSuggestion/approveOpinionSuggestion', {
+          uuid: this.$route.params.id,
+          decision: is ? '通过' : '未通过',
+        });
+        this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
+        this.$notify({ type: 'success', message: `审批${is ? '通过' : '不通过'}成功` });
       } catch (e) {
         if (e.response.data && e.response.data.message) {
           this.$notify({ type: 'danger', message: e.response.data.message });

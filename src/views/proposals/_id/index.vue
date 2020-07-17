@@ -232,9 +232,8 @@
           </template>
           <template #label>
             <div class="user-list">
-              <span class="highlight">未处理格式化：</span>
               <pre>
-                {{ opt.detail }}
+                {{ opt }}
               </pre>
             </div>
           </template>

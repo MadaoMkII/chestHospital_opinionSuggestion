@@ -140,8 +140,8 @@ export default {
   data() {
     return {
       isLoading: false,
-      type: '意见',
-      typeList: ['意见', '建议'],
+      type: '建议',
+      typeList: ['建议', '意见'],
       showTypePicker: false,
       subject: '',
       category: '',

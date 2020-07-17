@@ -99,7 +99,7 @@
         </van-tab>
         <van-tab
           title="待审批"
-          name="待审批"
+          name="已处理待审批"
         >
           <van-pull-refresh
             v-model="refreshing"

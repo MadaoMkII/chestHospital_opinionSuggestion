@@ -1,8 +1,11 @@
 <template>
   <page-layout>
     <template #header>
-      <van-dropdown-menu class="van-hairline--bottom">
+      <van-dropdown-menu
+        class="van-hairline--bottom"
+      >
         <van-dropdown-item
+          @change="updateCharts"
           v-model="selectedOption"
           :options="options"
         />
@@ -50,18 +53,19 @@ export default {
       selectedOption: '本周',
       activeCharts: ['1', '2', '3'],
       charts: [],
+      chartData: [],
     };
   },
-  mounted() {
-    console.log(this.$refs.chart);
+  async mounted() {
+    this.chartData = await this.fetchStatisticData({ period: this.selectedOption });
     const chart1 = new Chart(this.$refs.chart1, {
       type: 'pie',
       data: {
-        labels: ['意见', '建议'],
+        labels: this.chartData.char1Data.labels,
         datasets: [{
           backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 205, 86, 1)', 'rgba(127, 255, 212, 1)'],
           borderWidth: 1,
-          data: [5, 10],
+          data: this.chartData.char1Data.datasets,
         }],
       },
       options: {
@@ -74,11 +78,11 @@ export default {
     const chart2 = new Chart(this.$refs.chart2, {
       type: 'pie',
       data: {
-        labels: ['意见', '建议'],
+        labels: this.chartData.char2Data.labels,
         datasets: [{
           backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 205, 86, 1)', 'rgba(127, 255, 212, 1)'],
           borderWidth: 1,
-          data: [5, 10],
+          data: this.chartData.char2Data.datasets,
         }],
       },
       options: {
@@ -91,11 +95,11 @@ export default {
     const chart3 = new Chart(this.$refs.chart3, {
       type: 'pie',
       data: {
-        labels: ['意见', '建议'],
+        labels: this.chartData.char3Data.labels,
         datasets: [{
           backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 205, 86, 1)', 'rgba(127, 255, 212, 1)'],
           borderWidth: 1,
-          data: [5, 11],
+          data: this.chartData.char3Data.datasets,
         }],
       },
       options: {
@@ -105,6 +109,28 @@ export default {
       },
     });
     this.charts.push(chart3);
+  },
+  methods: {
+    async fetchStatisticData(params) {
+      const response = await this.$axios.get('/api/opinionSuggestion/getOpinionSuggestionCharts', {
+        params,
+      });
+      return response.data.data;
+    },
+    async updateCharts() {
+      this.chartData = await this.fetchStatisticData({ period: this.selectedOption });
+      this.charts[0].data.labels = this.chartData.char1Data.labels;
+      this.charts[0].data.datasets[0].data = this.chartData.char1Data.datasets;
+      this.charts[0].update();
+
+      this.charts[1].data.labels = this.chartData.char2Data.labels;
+      this.charts[1].data.datasets[0].data = this.chartData.char2Data.datasets;
+      this.charts[1].update();
+
+      this.charts[2].data.labels = this.chartData.char3Data.labels;
+      this.charts[2].data.datasets[0].data = this.chartData.char3Data.datasets;
+      this.charts[2].update();
+    },
   },
 };
 </script>

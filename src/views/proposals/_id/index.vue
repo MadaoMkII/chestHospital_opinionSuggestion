@@ -11,12 +11,12 @@
       fixed
       placeholder
     />
-    <pre>
-      isUnionAdministrator: {{ isUnionAdministrator }}
-      isPrincipal: {{ isPrincipal }}
-      isApprovalLeader: {{ isApprovalLeader }}
-      isCollaborator: {{ isCollaborator }}
-    </pre>
+    <!--    <pre>-->
+    <!--      isUnionAdministrator: {{ isUnionAdministrator }}-->
+    <!--      isPrincipal: {{ isPrincipal }}-->
+    <!--      isApprovalLeader: {{ isApprovalLeader }}-->
+    <!--      isCollaborator: {{ isCollaborator }}-->
+    <!--    </pre>-->
     <van-cell-group title="基本信息">
       <van-cell
         :title="`关于【${proposal.title}】的${proposal.type}`"
@@ -198,6 +198,61 @@
                   </div>
                 </div>
               </div>
+            </div>
+          </template>
+        </van-cell>
+        <van-cell
+          v-else-if="opt.action === '退回'"
+          class="opt-cell"
+          :key="i"
+        >
+          <template #title>
+            <div class="opt">
+              <div class="opt__user">
+                <div class="user">
+                  <van-image
+                    class="user__avatar"
+                    width="24px"
+                    height="24px"
+                    fit="cover"
+                    round
+                    :src="opt.operator.avatar"
+                  />
+                  <div class="user__name">
+                    <div class="van-ellipsis">
+                      {{ opt.operator.nickName }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="opt__datetime">
+                {{ formatDatetime(opt.created_at) }}
+              </div>
+            </div>
+          </template>
+          <template #label>
+            <div class="user-list">
+              <template v-if="opt.detail">
+                <span class="highlight">取消指派：</span>
+                <div class="user">
+                  <van-image
+                    class="user__avatar"
+                    width="18px"
+                    height="18px"
+                    fit="cover"
+                    round
+                    :src="opt.detail.avatar"
+                  />
+                  <div class="user__name">
+                    <div class="van-ellipsis">
+                      {{ opt.detail.nickName }}
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <template v-else>
+                <span class="highlight">退回指派</span>
+              </template>
             </div>
           </template>
         </van-cell>

@@ -257,6 +257,72 @@
           </template>
         </van-cell>
         <van-cell
+          v-else-if="opt.action === '处理'"
+          class="opt-cell"
+          :key="i"
+        >
+          <template #title>
+            <div class="opt">
+              <div class="opt__user">
+                <div class="user">
+                  <van-image
+                    class="user__avatar"
+                    width="24px"
+                    height="24px"
+                    fit="cover"
+                    round
+                    :src="opt.operator.avatar"
+                  />
+                  <div class="user__name">
+                    <div class="van-ellipsis">
+                      {{ opt.operator.nickName }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="opt__datetime">
+                {{ formatDatetime(opt.created_at) }}
+              </div>
+            </div>
+          </template>
+          <template #label>
+            <span class="highlight">将状态改为已处理，等待审批</span>
+          </template>
+        </van-cell>
+        <van-cell
+          v-else-if="opt.action === '审批'"
+          class="opt-cell"
+          :key="i"
+        >
+          <template #title>
+            <div class="opt">
+              <div class="opt__user">
+                <div class="user">
+                  <van-image
+                    class="user__avatar"
+                    width="24px"
+                    height="24px"
+                    fit="cover"
+                    round
+                    :src="opt.operator.avatar"
+                  />
+                  <div class="user__name">
+                    <div class="van-ellipsis">
+                      {{ opt.operator.nickName }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="opt__datetime">
+                {{ formatDatetime(opt.created_at) }}
+              </div>
+            </div>
+          </template>
+          <template #label>
+            <span class="highlight">{{ opt.detail.content }}审批</span>
+          </template>
+        </van-cell>
+        <van-cell
           v-else
           class="opt-cell"
           :key="i"

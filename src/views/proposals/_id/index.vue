@@ -361,9 +361,38 @@
         </van-cell>
       </template>
     </van-cell-group>
+    <!-- 我是审批领导时的操作选项-->
+    <div
+      v-if="isApprovalLeaderStatus"
+      class="submit-bar"
+    >
+      <template v-if="proposal.status === '已处理待审批'">
+        <van-grid
+          clickable
+          :column-num="3"
+        >
+          <van-grid-item
+            clickable
+            text="回复"
+            @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
+          />
+          <van-grid-item
+            clickable
+            text="审批不通过"
+            @click="setApproval(false)"
+          />
+          <van-grid-item
+            clickable
+            text="审批通过"
+            @click="setApproval(true)"
+          />
+        </van-grid>
+      </template>
+    </div>
+    <!-- 我是审批领导时的操作选项结束-->
     <!-- 工会管理员的操作选项 -->
     <div
-      v-if="isUnionAdministratorStatus"
+      v-else-if="isUnionAdministratorStatus"
       class="submit-bar"
     >
       <template v-if="proposal.status === '未处理'">
@@ -508,35 +537,6 @@
       </template>
     </div>
     <!-- 我是协作人时的操作选项结束 -->
-    <!-- 我是审批领导时的操作选项-->
-    <div
-      v-else-if="isApprovalLeaderStatus"
-      class="submit-bar"
-    >
-      <template v-if="proposal.status === '已处理待审批'">
-        <van-grid
-          clickable
-          :column-num="3"
-        >
-          <van-grid-item
-            clickable
-            text="回复"
-            @click="$router.push({ name: 'proposals-id-replay', params: { id: $route.params.id } })"
-          />
-          <van-grid-item
-            clickable
-            text="审批不通过"
-            @click="setApproval(false)"
-          />
-          <van-grid-item
-            clickable
-            text="审批通过"
-            @click="setApproval(true)"
-          />
-        </van-grid>
-      </template>
-    </div>
-    <!-- 我是审批领导时的操作选项结束-->
   </div>
 </template>
 

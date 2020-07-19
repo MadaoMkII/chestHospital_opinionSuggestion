@@ -20,6 +20,7 @@
         @click="onTabClick"
       >
         <van-tab
+          v-if="isUnionAdministrator"
           title="全部"
           name="全部"
         >
@@ -46,6 +47,7 @@
           />
         </van-tab>
         <van-tab
+          v-if="isUnionAdministrator"
           title="未处理"
           name="未处理"
         >
@@ -98,6 +100,7 @@
           />
         </van-tab>
         <van-tab
+          v-if="isApprovalLeader"
           title="待审批"
           name="已处理待审批"
         >
@@ -155,6 +158,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   data() {
     return {
@@ -167,7 +172,14 @@ export default {
       isDirty: false,
       tab: '全部',
       keywords: '',
+      isApprovalLeader: false,
     };
+  },
+  computed: {
+    ...mapState(['user']),
+    isUnionAdministrator() {
+      return this.user.privileges.isUnionAdministrator;
+    },
   },
   async created() {
     if (this.$route.query.keywords) {
@@ -176,7 +188,8 @@ export default {
     if (this.$route.query.tab) {
       this.tab = this.$route.query.tab;
     }
-    console.log(await this.$axios.get('/api/management/getApartmentManagement'));
+    const approvalLeaderList = await this.fetchApprovalLeaderList();
+    this.isApprovalLeader = !!approvalLeaderList.find((user) => this.user.USERID === user.USERID);
   },
   beforeRouteUpdate(to, from, next) {
     if (to.query.keywords) {
@@ -190,6 +203,11 @@ export default {
     next();
   },
   methods: {
+    async fetchApprovalLeaderList() {
+      const response = await this.$axios.get('/api/management/getApartmentManagement');
+      const list = response.data.data;
+      return list.filter((department) => department.dean).map((department) => department.dean);
+    },
     // 加载指定参数的待评价列表
     async fetchList(params) {
       const response = await this.$axios.post('/api/opinionSuggestion/getOpinionSuggestionList', params);

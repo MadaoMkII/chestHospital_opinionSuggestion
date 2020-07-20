@@ -21,7 +21,6 @@ export default new Vuex.Store({
   actions: {
     async fetchUser({ commit }) {
       const response = await axios.get('/api/user/getUserInfo');
-      // response.data.data.privileges.isUnionAdministrator = false; // 测试非工会管理员时取消注释
       commit('setUser', response.data.data);
     },
   },

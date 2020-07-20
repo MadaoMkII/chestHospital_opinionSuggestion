@@ -178,7 +178,7 @@ export default {
   computed: {
     ...mapState(['user']),
     isUnionAdministrator() {
-      return this.user.privileges.isUnionAdministrator;
+      return this.user.privileges.hasPrivilege_opinionSuggestion_front_unionAdministrate;
     },
   },
   async created() {

@@ -561,7 +561,7 @@ export default {
       return this.isPrincipal && (this.proposal.status === '处理中' || this.proposal.status === '已处理待审批');
     },
     isUnionAdministrator() {
-      return this.user.privileges.isUnionAdministrator;
+      return this.user.privileges.hasPrivilege_opinionSuggestion_front_unionAdministrate;
     },
     isUnionAdministratorStatus() {
       return this.isUnionAdministrator && (this.proposal.status === '未处理' || this.proposal.status === '处理中' || this.proposal.status === '已处理待审批');

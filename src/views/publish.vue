@@ -70,6 +70,9 @@
             :max-count="1"
             accept="audio/*,video/*,image/*"
             upload-icon="add-o"
+            :after-read="upload"
+            :max-size="2000 * 1024"
+            @oversize="onOversize"
           />
         </template>
       </van-field>
@@ -167,17 +170,68 @@ export default {
       this.type = value;
       this.showTypePicker = false;
     },
+    onOversize() {
+      this.$notify({ type: 'danger', message: '上传文件大小不能超过 2MB' });
+    },
+    async upload(file) {
+      // eslint-disable-next-line no-param-reassign
+      file.status = 'uploading';
+      // eslint-disable-next-line no-param-reassign
+      file.message = '上传中...';
+      try {
+        const accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
+        const formData = new FormData();
+        formData.append('type', file.file.type.split('/')[0]);
+        formData.append('media', file.file);
+        const response = await this.$axios.post('/wx-api/cgi-bin/media/upload', formData, {
+          params: {
+            access_token: accessToken,
+          },
+        });
+        switch (response.data.errcode) {
+          case 0:
+            // eslint-disable-next-line no-param-reassign
+            file.status = 'done';
+            // eslint-disable-next-line no-param-reassign
+            file.mediaId = response.data.media_id;
+            break;
+          default:
+            // eslint-disable-next-line no-param-reassign
+            file.status = 'failed';
+            // eslint-disable-next-line no-param-reassign
+            file.message = '上传失败';
+            this.$notify({
+              type: 'danger',
+              message: `上传失败: (${response.data.errcode})${response.data.errmsg}`,
+            });
+            break;
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-param-reassign
+        file.status = 'failed';
+        // eslint-disable-next-line no-param-reassign
+        file.message = '上传失败';
+      }
+    },
     async onSubmit(form) {
       if (this.isLoading) return;
+      if (this.attachment[0] && this.attachment[0].status === 'uploading') {
+        this.$notify({ type: 'danger', message: '附件正在上传，请等待上传完成再试' });
+        return;
+      }
       try {
         this.isLoading = true;
+        let mediaId;
+        if (this.attachment[0] && this.attachment[0].status === 'done' && this.attachment[0].mediaId) {
+          mediaId = this.attachment[0].mediaId;
+        }
         await this.$axios.post('/api/opinionSuggestion/createOpinionSuggestion', {
           type: form.type,
           title: form.subject,
           category: form.category,
           content: form.content,
           isAnonymity: form.isAnonymous,
-          // accessoryUrl: 'https://www.baidu.com/',
+          accessoryUrl: mediaId,
         });
         this.$notify({ type: 'success', message: `${this.type}发布成功` });
         this.$router.push({ name: 'my' });

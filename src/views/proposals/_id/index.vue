@@ -595,7 +595,7 @@ export default {
           uuid: this.$route.params.id,
         });
         this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
-        this.$notify({ type: 'success', message: '删除负责人成功' });
+        this.$notify({ type: 'success', message: '取消指派负责人成功' });
       } catch (e) {
         if (e.response.data && e.response.data.message) {
           this.$notify({ type: 'danger', message: e.response.data.message });

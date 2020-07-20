@@ -159,7 +159,7 @@ export default {
           principalUSERID: this.selectedUserId,
           apartmentID: `${this.currentDepartment.id}`,
         });
-        this.$notify({ type: 'success', message: '设置负责人成功' });
+        this.$notify({ type: 'success', message: '指派负责人成功' });
         this.$router.go(-this.deep);
       } catch (e) {
         if (e.response.data && e.response.data.message) {

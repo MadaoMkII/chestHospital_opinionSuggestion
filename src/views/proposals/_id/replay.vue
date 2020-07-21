@@ -128,7 +128,7 @@ export default {
         await this.$axios.post('/api/opinionSuggestion/replyOpinionSuggestion', {
           uuid: this.$route.params.id,
           content: form.content,
-          accessoryUrl: mediaId,
+          media_id: mediaId,
         });
         this.$notify({ type: 'success', message: '回复发送成功' });
         this.$router.back();

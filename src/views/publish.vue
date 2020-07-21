@@ -231,7 +231,7 @@ export default {
           category: form.category,
           content: form.content,
           isAnonymity: form.isAnonymous,
-          accessoryUrl: mediaId,
+          media_id: mediaId,
         });
         this.$notify({ type: 'success', message: `${this.type}发布成功` });
         this.$router.push({ name: 'my' });

@@ -71,7 +71,7 @@
             accept="audio/*,video/*,image/*"
             upload-icon="add-o"
             :after-read="upload"
-            :max-size="2000 * 1024"
+            :max-size="4000 * 1024"
             @oversize="onOversize"
           />
         </template>
@@ -171,7 +171,7 @@ export default {
       this.showTypePicker = false;
     },
     onOversize() {
-      this.$notify({ type: 'danger', message: '上传文件大小不能超过 2MB' });
+      this.$notify({ type: 'danger', message: '上传文件大小不能超过 4MB' });
     },
     async upload(file) {
       // eslint-disable-next-line no-param-reassign
@@ -181,7 +181,7 @@ export default {
       try {
         const accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
         const formData = new FormData();
-        formData.append('type', file.file.type.split('/')[0]);
+        formData.append('type', this.getFileType(file.file.type));
         formData.append('media', file.file);
         const response = await this.$axios.post('/wx-api/cgi-bin/media/upload', formData, {
           params: {
@@ -243,6 +243,19 @@ export default {
         }
       } finally {
         this.isLoading = false;
+      }
+    },
+    getFileType(mimeType) {
+      const rawType = mimeType.split('/')[0];
+      switch (rawType) {
+        case 'image':
+          return 'image';
+        case 'audio':
+          return 'voice';
+        case 'video':
+          return 'video';
+        default:
+          return 'file';
       }
     },
   },

@@ -60,20 +60,11 @@
         :rules="[{ required: true, message: '内容不能为空' }]"
       />
       <van-field
-        name="attachment"
+        name="uploadFileType"
         label="附件"
       >
         <template #input>
-          <van-uploader
-            style="margin-bottom: -8px;"
-            v-model="attachment"
-            :max-count="1"
-            accept="audio/*,video/*,image/*"
-            upload-icon="add-o"
-            :after-read="upload"
-            :max-size="4000 * 1024"
-            @oversize="onOversize"
-          />
+          <file-uploader ref="fileUploader" />
         </template>
       </van-field>
       <van-field
@@ -170,60 +161,32 @@ export default {
       this.type = value;
       this.showTypePicker = false;
     },
-    onOversize() {
-      this.$notify({ type: 'danger', message: '上传文件大小不能超过 4MB' });
-    },
-    async upload(file) {
-      // eslint-disable-next-line no-param-reassign
-      file.status = 'uploading';
-      // eslint-disable-next-line no-param-reassign
-      file.message = '上传中...';
-      try {
-        const accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
-        const formData = new FormData();
-        formData.append('type', this.getFileType(file.file.type));
-        formData.append('media', file.file);
-        const response = await this.$axios.post('/wx-api/cgi-bin/media/upload', formData, {
-          params: {
-            access_token: accessToken,
-          },
-        });
-        switch (response.data.errcode) {
-          case 0:
-            // eslint-disable-next-line no-param-reassign
-            file.status = 'done';
-            // eslint-disable-next-line no-param-reassign
-            file.mediaId = response.data.media_id;
-            break;
-          default:
-            // eslint-disable-next-line no-param-reassign
-            file.status = 'failed';
-            // eslint-disable-next-line no-param-reassign
-            file.message = '上传失败';
-            this.$notify({
-              type: 'danger',
-              message: `上传失败: (${response.data.errcode})${response.data.errmsg}`,
-            });
-            break;
-        }
-      } catch (e) {
-        // eslint-disable-next-line no-param-reassign
-        file.status = 'failed';
-        // eslint-disable-next-line no-param-reassign
-        file.message = '上传失败';
-      }
-    },
     async onSubmit(form) {
       if (this.isLoading) return;
-      if (this.attachment[0] && this.attachment[0].status === 'uploading') {
+      let uploadFileList;
+      switch (this.$refs.fileUploader.fileType) {
+        case 'image':
+          uploadFileList = this.$refs.fileUploader.imageList;
+          break;
+        case 'video':
+          uploadFileList = this.$refs.fileUploader.videoList;
+          break;
+        case 'file':
+          uploadFileList = this.$refs.fileUploader.fileList;
+          break;
+        default:
+          uploadFileList = [];
+          break;
+      }
+      if (uploadFileList[0] && uploadFileList[0].status === 'uploading') {
         this.$notify({ type: 'danger', message: '附件正在上传，请等待上传完成再试' });
         return;
       }
       try {
         this.isLoading = true;
         let mediaId;
-        if (this.attachment[0] && this.attachment[0].status === 'done' && this.attachment[0].mediaId) {
-          mediaId = this.attachment[0].mediaId;
+        if (uploadFileList[0] && uploadFileList[0].status === 'done' && uploadFileList[0].mediaId) {
+          mediaId = uploadFileList[0].mediaId;
         }
         await this.$axios.post('/api/opinionSuggestion/createOpinionSuggestion', {
           type: form.type,
@@ -243,19 +206,6 @@ export default {
         }
       } finally {
         this.isLoading = false;
-      }
-    },
-    getFileType(mimeType) {
-      const rawType = mimeType.split('/')[0];
-      switch (rawType) {
-        case 'image':
-          return 'image';
-        case 'audio':
-          return 'voice';
-        case 'video':
-          return 'video';
-        default:
-          return 'file';
       }
     },
   },

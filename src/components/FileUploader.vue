@@ -30,6 +30,12 @@
       </van-radio>
     </van-radio-group>
     <template v-if="fileType === 'image'">
+      <van-button
+        native-type="button"
+        @click="takePicture"
+      >
+        选择图片
+      </van-button>
       <van-uploader
         style="margin-bottom: -8px;"
         v-model="imageList"
@@ -98,11 +104,19 @@ export default {
       timestamp,
       nonceStr,
       signature,
-      jsApiList: [],
+      jsApiList: ['getLocalImgData', 'chooseImage'],
     });
-    alert(wx.agentConfig);
   },
   methods: {
+    takePicture() {
+      console.log('takePicture');
+      wx.chooseImage({
+        count: 1,
+        success(res) {
+          console.log(res);
+        },
+      });
+    },
     async fetchJsApiTicket() {
       const response = await this.$axios.get('/api/user/get_jsapi_ticket');
       return response.data.data;

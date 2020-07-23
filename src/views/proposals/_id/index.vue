@@ -138,8 +138,14 @@
             </div>
           </template>
           <template #label>
-            <span v-if="!opt.detail.length" class="highlight">移除了所有协作人</span>
-            <div v-else class="user-list">
+            <span
+              v-if="!opt.detail.length"
+              class="highlight"
+            >移除了所有协作人</span>
+            <div
+              v-else
+              class="user-list"
+            >
               <span class="highlight">设置协作人：</span>
               <div
                 class="user"
@@ -444,7 +450,7 @@
       <template v-else-if="proposal.status === '处理中'">
         <van-grid
           clickable
-          :column-num="4"
+          :column-num="isPrincipal ? 4 : 3"
         >
           <van-grid-item
             clickable
@@ -469,6 +475,7 @@
             @click="$router.push({ name: 'proposals-id-cooperation-user-list-department-id', params: { id: $route.params.id, departmentId: '1' } })"
           />
           <van-grid-item
+            v-if="isPrincipal"
             clickable
             text="处理"
             @click="setPending()"

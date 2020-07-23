@@ -127,6 +127,32 @@
           />
         </van-tab>
         <van-tab
+          title="协作中"
+          name="协作中"
+        >
+          <van-pull-refresh
+            v-model="refreshing"
+            @refresh="onRefresh"
+          >
+            <van-list
+              v-model="loading"
+              :finished="finished"
+              @load="onLoad"
+            >
+              <proposal-item
+                v-for="item in list"
+                :key="item.uuid"
+                :value="{ subject: item.title, status: item.status, type: item.type, createdAt: item.created_at }"
+                :to="{ name: 'proposals-id', params: { id: item.uuid } }"
+              />
+            </van-list>
+          </van-pull-refresh>
+          <van-empty
+            v-if="total === 0 && isDirty"
+            description="暂无数据"
+          />
+        </van-tab>
+        <van-tab
           title="已完成"
           name="已完成"
         >

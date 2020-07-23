@@ -18,6 +18,7 @@
         发布
       </van-tabbar-item>
       <van-tabbar-item
+        v-if="user.privileges.hasPrivilege_opinionSuggestion_chart || user.privileges.hasPrivilege_opinionSuggestion_front_unionAdministrate"
         :to="{ name: 'statistics' }"
         icon="bar-chart-o"
       >
@@ -32,3 +33,13 @@
     </van-tabbar>
   </div>
 </template>
+
+<script>
+import { mapState } from 'vuex';
+
+export default {
+  computed: {
+    ...mapState(['user']),
+  },
+};
+</script>

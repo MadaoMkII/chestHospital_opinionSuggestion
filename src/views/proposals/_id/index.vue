@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="proposal"
-    :class="{ 'has-submit-bar': isUnionAdministratorStatus || isPrincipalStatus || isApprovalLeaderStatus || isCollaboratorStatus }"
+    :class="{ 'has-submit-bar': isUnionAdministratorStatus || isPrincipalStatus || isApprovalLeaderStatus || isCollaboratorStatus || isPublisherStatus }"
   >
     <van-nav-bar
       title="意见建议"
@@ -409,7 +409,7 @@
       <template v-if="proposal.status === '未处理'">
         <van-grid
           clickable
-          :column-num="3"
+          :column-num="4"
         >
           <van-grid-item
             clickable
@@ -432,6 +432,11 @@
             clickable
             text="协作"
             @click="$router.push({ name: 'proposals-id-cooperation-user-list-department-id', params: { id: $route.params.id, departmentId: '1' } })"
+          />
+          <van-grid-item
+            clickable
+            text="删除"
+            @click="deleteProposal()"
           />
         </van-grid>
       </template>
@@ -548,6 +553,25 @@
       </template>
     </div>
     <!-- 我是协作人时的操作选项结束 -->
+    <!-- 我是发布人 -->
+    <div
+      v-else-if="isPublisherStatus"
+      class="submit-bar"
+    >
+      <template v-if="proposal.status === '未处理'">
+        <van-grid
+          clickable
+          :column-num="1"
+        >
+          <van-grid-item
+            clickable
+            text="删除"
+            @click="deleteProposal()"
+          />
+        </van-grid>
+      </template>
+    </div>
+    <!-- 我是发布人结束 -->
   </div>
 </template>
 
@@ -589,6 +613,12 @@ export default {
     isCollaboratorStatus() {
       return this.isCollaborator && (this.proposal.status === '处理中' || this.proposal.status === '已处理待审批');
     },
+    isPublisher() {
+      return this.user.USERID === this.proposal.creator.USERID;
+    },
+    isPublisherStatus() {
+      return this.isPublisher && (this.proposal.status === '未处理');
+    },
   },
   async created() {
     this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
@@ -616,6 +646,35 @@ export default {
       } finally {
         this.isLoading = false;
       }
+    },
+    async deleteProposal() {
+      if (this.isLoading) return;
+      this.$dialog.confirm({
+        title: '提示',
+        message: '确认要删除吗?',
+      })
+        .then(async () => {
+          try {
+            this.isLoading = true;
+            await this.$axios.post('/api/opinionSuggestion/deleteOpinionSuggestion', {
+              uuid: this.$route.params.id,
+            });
+            // this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
+            this.$notify({ type: 'success', message: '删除成功' });
+            this.$router.back();
+          } catch (e) {
+            if (e.response.data && e.response.data.message) {
+              this.$notify({ type: 'danger', message: e.response.data.message });
+            } else {
+              this.$notify({ type: 'danger', message: '请求失败，服务器发生错误' });
+            }
+          } finally {
+            this.isLoading = false;
+          }
+        })
+        .catch(() => {
+          // on cancel
+        });
     },
     async setPending() {
       if (this.isLoading) return;

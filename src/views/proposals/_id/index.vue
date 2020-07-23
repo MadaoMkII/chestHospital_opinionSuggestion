@@ -7,7 +7,7 @@
       title="意见建议"
       left-text="返回"
       left-arrow
-      @click-left="$router.back()"
+      @click-left="routerBack()"
       fixed
       placeholder
     />
@@ -593,6 +593,7 @@ export default {
     return {
       isLoading: false,
       proposal: null,
+      fromRouteName: null,
     };
   },
   computed: {
@@ -631,7 +632,20 @@ export default {
   async created() {
     this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
   },
+  beforeRouteEnter(to, from, next) {
+    next((vm) => {
+      // eslint-disable-next-line no-param-reassign
+      vm.fromRouteName = from.name;
+    });
+  },
   methods: {
+    routerBack() {
+      if (this.fromRouteName) {
+        this.$router.back();
+      } else {
+        this.$router.replace({ name: 'index' });
+      }
+    },
     async fetchProposal(params) {
       const response = await this.$axios.post('/api/opinionSuggestion/getOpinionSuggestionDetail', params);
       return response.data.data;

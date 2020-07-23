@@ -1,5 +1,5 @@
 <template>
-  <page-layout>
+  <page-layout style="margin-top: 48px;">
     <template #header>
       <van-dropdown-menu
         class="van-hairline--bottom"
@@ -22,13 +22,13 @@
           <canvas ref="chart1" />
         </van-collapse-item>
         <van-collapse-item
-          title="意见处理统计图"
+          title="建议处理统计图"
           name="2"
         >
           <canvas ref="chart2" />
         </van-collapse-item>
         <van-collapse-item
-          title="建议处理统计图"
+          title="意见处理统计图"
           name="3"
         >
           <canvas ref="chart3" />

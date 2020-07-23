@@ -138,7 +138,8 @@
             </div>
           </template>
           <template #label>
-            <div class="user-list">
+            <span v-if="!opt.detail.length" class="highlight">移除了所有协作人</span>
+            <div v-else class="user-list">
               <span class="highlight">设置协作人：</span>
               <div
                 class="user"

@@ -1,5 +1,5 @@
 <template>
-  <page-layout>
+  <page-layout style="margin-top: 54px;">
     <template #header>
       <van-search
         v-model="keywords"

@@ -55,9 +55,16 @@
       <van-cell
         class="content-cell"
         title="内容"
-        :label="proposal.content"
         :border="false"
-      />
+      >
+        <template #label>
+          {{ proposal.content }}
+          <preview-file
+            v-if="proposal.accessory"
+            :filename="proposal.accessory"
+          />
+        </template>
+      </van-cell>
     </van-cell-group>
     <van-cell-group
       v-if="proposal.operationHistory.length"
@@ -95,6 +102,10 @@
           </template>
           <template #label>
             <span class="highlight">回复：</span>{{ opt.detail.content }}
+            <preview-file
+              v-if="proposal.accessory"
+              :filename="proposal.accessory"
+            />
           </template>
         </van-cell>
         <van-cell

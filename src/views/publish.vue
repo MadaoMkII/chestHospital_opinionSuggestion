@@ -152,7 +152,6 @@ export default {
         '其它',
       ],
       content: '',
-      attachment: [],
       isAnonymous: false,
     };
   },
@@ -174,12 +173,23 @@ export default {
         case 'file':
           uploadFileList = this.$refs.fileUploader.fileList;
           break;
+        case 'voice':
+          if (this.$refs.fileUploader.voiceMediaId) {
+            uploadFileList = [{ status: this.$refs.fileUploader.isStartVoiceRecord ? 'uploading' : 'done', mediaId: this.$refs.fileUploader.voiceMediaId }];
+          } else {
+            uploadFileList = [];
+          }
+          break;
         default:
           uploadFileList = [];
           break;
       }
       if (uploadFileList[0] && uploadFileList[0].status === 'uploading') {
-        this.$notify({ type: 'danger', message: '附件正在上传，请等待上传完成再试' });
+        if (this.$refs.fileUploader.fileType === 'voice') {
+          this.$notify({ type: 'danger', message: '录音正在进行，请完成录音后再试' });
+        } else {
+          this.$notify({ type: 'danger', message: '附件正在上传，请等待上传完成再试' });
+        }
         return;
       }
       try {
@@ -188,6 +198,7 @@ export default {
         if (uploadFileList[0] && uploadFileList[0].status === 'done' && uploadFileList[0].mediaId) {
           mediaId = uploadFileList[0].mediaId;
         }
+        // 3Yyh54Zzv9sDMAzF9mSu19btDkaTU43C_ATf3I18Iz4ARxMk4i0sA_sG6vzrk1XCP
         await this.$axios.post('/api/opinionSuggestion/createOpinionSuggestion', {
           type: form.type,
           title: form.subject,

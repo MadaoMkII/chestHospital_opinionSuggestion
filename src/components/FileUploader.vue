@@ -23,6 +23,7 @@
         文件
       </van-radio>
       <van-radio
+        v-if="isInWeChat"
         style="margin-bottom: 8px;"
         name="voice"
       >
@@ -30,12 +31,6 @@
       </van-radio>
     </van-radio-group>
     <template v-if="fileType === 'image'">
-      <van-button
-        native-type="button"
-        @click="takePicture"
-      >
-        选择图片
-      </van-button>
       <van-uploader
         style="margin-bottom: -8px;"
         v-model="imageList"
@@ -43,8 +38,6 @@
         accept=".png, .jpg, .jpeg"
         upload-icon="add-o"
         :after-read="upload"
-        :max-size="2000 * 1024"
-        @oversize="onOversize"
       />
     </template>
     <template v-else-if="fileType === 'video'">
@@ -72,13 +65,61 @@
       />
     </template>
     <template v-else-if="fileType === 'voice'">
-      voice
+      <van-button
+        v-if="!isStartVoiceRecord"
+        native-type="button"
+        plain
+        icon="play"
+        type="info"
+        size="small"
+        @click="startVoiceRecord()"
+      >
+        开始录音
+      </van-button>
+      <van-button
+        v-else
+        native-type="button"
+        plain
+        icon="stop"
+        type="danger"
+        size="small"
+        @click="stopVoiceRecord()"
+      >
+        停止录音
+      </van-button>
+      <template v-if="voiceLocalId">
+        <span style="margin-right: 12px;" />
+        <van-button
+          v-if="!isPlayVoice"
+          native-type="button"
+          plain
+          icon="play"
+          type="primary"
+          size="small"
+          @click="playVoice()"
+        >
+          播放录音
+        </van-button>
+        <van-button
+          v-else
+          native-type="button"
+          plain
+          icon="stop"
+          type="danger"
+          size="small"
+          @click="stopVoice()"
+        >
+          停止播放
+        </van-button>
+      </template>
+      <!--      <van-count-down :time="1 * 60" />-->
     </template>
   </div>
 </template>
 
 <script>
 import sha1 from 'js-sha1';
+import { compressAccurately } from 'image-conversion';
 
 const { wx } = global;
 
@@ -89,6 +130,11 @@ export default {
       imageList: [],
       videoList: [],
       fileList: [],
+      isStartVoiceRecord: false,
+      isPlayVoice: false,
+      voiceMediaId: null,
+      voiceLocalId: null,
+      isInWeChat: false,
     };
   },
   async created() {
@@ -96,36 +142,29 @@ export default {
     const timestamp = Math.floor(Date.now() / 1000);
     const nonceStr = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const signature = sha1(`jsapi_ticket=${jsApiTicket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${window.location.href}`);
-    wx.agentConfig({
-      beta: true,
-      debug: true,
-      corpid: process.env.VUE_APP_WECHAT_APP_ID,
-      agentid: process.env.VUE_APP_WECHAT_AGENT_ID,
-      timestamp,
-      nonceStr,
-      signature,
-      jsApiList: ['getLocalImgData', 'chooseImage'],
-    });
+    try {
+      wx.agentConfig({
+        beta: true,
+        debug: true,
+        corpid: process.env.VUE_APP_WECHAT_APP_ID,
+        agentid: process.env.VUE_APP_WECHAT_AGENT_ID,
+        timestamp,
+        nonceStr,
+        signature,
+        jsApiList: ['onVoiceRecordEnd', 'onVoicePlayEnd', 'startRecord', 'stopRecord', 'playVoice', 'stopVoice'],
+      });
+      this.isInWeChat = true;
+    } catch (e) {
+      this.isInWeChat = false;
+    }
   },
   methods: {
-    takePicture() {
-      console.log('takePicture');
-      wx.chooseImage({
-        count: 1,
-        success(res) {
-          console.log(res);
-        },
-      });
-    },
     async fetchJsApiTicket() {
       const response = await this.$axios.get('/api/user/get_jsapi_ticket');
       return response.data.data;
     },
     onOversize() {
       switch (this.fileType) {
-        case 'image':
-          this.$notify({ type: 'danger', message: '上传图片大小不能超过 2MB' });
-          break;
         case 'video':
           this.$notify({ type: 'danger', message: '上传视频大小不能超过 10MB' });
           break;
@@ -145,7 +184,12 @@ export default {
         const accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
         const formData = new FormData();
         formData.append('type', this.fileType);
-        formData.append('media', file.file);
+        if (this.fileType === 'image' && file.file.size > 2000 * 1024) {
+          const compressFile = await compressAccurately(file.file, 1024 * 2);
+          formData.append('media', compressFile);
+        } else {
+          formData.append('media', file.file);
+        }
         const response = await this.$axios.post('/wx-api/cgi-bin/media/upload', formData, {
           params: {
             access_token: accessToken,
@@ -175,6 +219,62 @@ export default {
         // eslint-disable-next-line no-param-reassign
         file.message = '上传失败';
       }
+    },
+    startVoiceRecord() {
+      const then = this;
+      wx.startRecord({
+        success() {
+          then.isPlayVoice = false;
+          then.isStartVoiceRecord = true;
+          then.voiceLocalId = null;
+          wx.onVoiceRecordEnd({
+            complete({ localId }) {
+              then.voiceLocalId = localId;
+              wx.uploadVoice({
+                localId,
+                success({ serverId }) {
+                  then.voiceMediaId = serverId;
+                  then.isStartVoiceRecord = false;
+                },
+              });
+            },
+          });
+        },
+      });
+    },
+    stopVoiceRecord() {
+      const then = this;
+      wx.stopRecord({
+        success({ localId }) {
+          then.voiceLocalId = localId;
+          wx.uploadVoice({
+            localId,
+            success({ serverId }) {
+              then.voiceMediaId = serverId;
+              then.isStartVoiceRecord = false;
+            },
+          });
+        },
+      });
+    },
+    playVoice() {
+      const then = this;
+      wx.playVoice({
+        localId: then.voiceLocalId,
+      });
+      wx.onVoicePlayEnd({
+        success() {
+          then.isPlayVoice = false;
+        },
+      });
+      then.isPlayVoice = true;
+    },
+    stopVoice() {
+      const then = this;
+      wx.stopVoice({
+        localId: then.voiceLocalId,
+      });
+      then.isPlayVoice = false;
     },
   },
 };

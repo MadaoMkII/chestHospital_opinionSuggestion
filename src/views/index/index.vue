@@ -1,5 +1,8 @@
 <template>
-  <page-layout style="margin-top: 54px;">
+  <page-layout
+    v-if="isApprovalLeader !== null"
+    style="margin-top: 54px;"
+  >
     <template #header>
       <van-search
         v-model="keywords"
@@ -197,7 +200,7 @@ export default {
       isDirty: false,
       tab: '全部',
       keywords: '',
-      isApprovalLeader: false,
+      isApprovalLeader: null,
     };
   },
   computed: {

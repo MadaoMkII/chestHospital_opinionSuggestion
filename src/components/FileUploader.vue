@@ -16,12 +16,12 @@
       >
         视频
       </van-radio>
-      <van-radio
-        style="margin-bottom: 8px;"
-        name="file"
-      >
-        文件
-      </van-radio>
+      <!--      <van-radio-->
+      <!--        style="margin-bottom: 8px;"-->
+      <!--        name="file"-->
+      <!--      >-->
+      <!--        文件-->
+      <!--      </van-radio>-->
       <van-radio
         v-if="isInWeChat"
         style="margin-bottom: 8px;"
@@ -52,18 +52,18 @@
         @oversize="onOversize"
       />
     </template>
-    <template v-else-if="fileType === 'file'">
-      <van-uploader
-        style="margin-bottom: -8px;"
-        v-model="fileList"
-        :max-count="1"
-        accept="*"
-        upload-icon="add-o"
-        :after-read="upload"
-        :max-size="20000 * 1024"
-        @oversize="onOversize"
-      />
-    </template>
+    <!--    <template v-else-if="fileType === 'file'">-->
+    <!--      <van-uploader-->
+    <!--        style="margin-bottom: -8px;"-->
+    <!--        v-model="fileList"-->
+    <!--        :max-count="1"-->
+    <!--        accept="*"-->
+    <!--        upload-icon="add-o"-->
+    <!--        :after-read="upload"-->
+    <!--        :max-size="20000 * 1024"-->
+    <!--        @oversize="onOversize"-->
+    <!--      />-->
+    <!--    </template>-->
     <template v-else-if="fileType === 'voice'">
       <van-button
         v-if="!isStartVoiceRecord"

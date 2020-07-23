@@ -12,7 +12,6 @@
       <van-tabs
         class="custom-tabs"
         v-model="tab"
-        swipeable
         color="#1989fa"
         sticky
         :offset-top="54"

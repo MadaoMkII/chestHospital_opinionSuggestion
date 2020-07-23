@@ -103,8 +103,8 @@
           <template #label>
             <span class="highlight">回复：</span>{{ opt.detail.content }}
             <preview-file
-              v-if="proposal.accessory"
-              :filename="proposal.accessory"
+              v-if="opt.detail.accessory"
+              :filename="opt.detail.accessory"
             />
           </template>
         </van-cell>

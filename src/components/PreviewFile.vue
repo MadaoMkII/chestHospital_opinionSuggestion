@@ -66,7 +66,8 @@ export default {
     downloadFile() {
       const element = document.createElement('a');
       element.setAttribute('href', this.fileUrl);
-      element.setAttribute('download', '');
+      element.setAttribute('download', this.filename);
+      element.setAttribute('target', '_blank');
       element.style.display = 'none';
       document.body.appendChild(element);
       element.click();

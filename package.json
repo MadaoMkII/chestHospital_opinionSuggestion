@@ -10,6 +10,7 @@
   "dependencies": {
     "@vant/touch-emulator": "^1.2.0",
     "axios": "^0.19.2",
+    "benz-amr-recorder": "^1.1.2",
     "chart.js": "^2.9.3",
     "core-js": "^3.6.5",
     "image-conversion": "^2.1.1",

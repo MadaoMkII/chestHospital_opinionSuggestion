@@ -31,12 +31,26 @@
     style="margin-top: 10px;"
   >
     <van-button
+      v-if="!isPlayVoice"
+      native-type="button"
+      plain
       icon="play"
       type="primary"
       size="small"
-      @click="playVoice"
+      @click="playVoice()"
     >
       播放语音
+    </van-button>
+    <van-button
+      v-else
+      native-type="button"
+      plain
+      icon="stop"
+      type="danger"
+      size="small"
+      @click="stopVoice()"
+    >
+      停止播放
     </van-button>
   </div>
   <div
@@ -57,6 +71,7 @@
 <script>
 import { ImagePreview } from 'vant';
 import sha1 from 'js-sha1';
+import BenzAMRRecorder from 'benz-amr-recorder';
 
 const { wx } = global;
 
@@ -70,6 +85,8 @@ export default {
   data() {
     return {
       isInWeChat: false,
+      isPlayVoice: false,
+      amr: null,
     };
   },
   computed: {
@@ -79,7 +96,7 @@ export default {
       // return 'file';
     },
     fileUrl() {
-      return `//www.mystery-vr.com/api/getAccessory/${this.filename}`;
+      return `/api/getAccessory/${this.filename}`;
       // return 'https://www.w3schools.com/html/mov_bbb.mp4';
     },
   },
@@ -106,15 +123,19 @@ export default {
   },
   methods: {
     playVoice() {
-      alert(wx.downloadFile);
-      wx.downloadFile({
-        url: this.fileUrl,
-        success(res) {
-          alert(res);
-          wx.playVoice({
-            filePath: res.tempFilePath,
-          });
-        },
+      this.amr = new BenzAMRRecorder();
+      this.amr.initWithUrl(this.fileUrl).then(() => {
+        this.amr.play();
+        this.isPlayVoice = true;
+      });
+      this.amr.onEnded(() => {
+        this.isPlayVoice = false;
+      });
+    },
+    stopVoice() {
+      this.amr.stop();
+      this.amr.onStop(() => {
+        this.isPlayVoice = false;
       });
     },
     async fetchJsApiTicket() {
@@ -144,6 +165,8 @@ export default {
         case 'jpeg':
           return 'image';
         case 'mp4':
+          return 'video';
+        case 'mov':
           return 'video';
         case 'amr':
           return 'voice';

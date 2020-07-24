@@ -111,7 +111,11 @@ export default {
       return userList;
     },
     async fetchData() {
-      const accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
+      const accessToken = (await this.$axios.get('/api/user/getToken', {
+        params: {
+          appName: 'addressBook',
+        },
+      })).data.data;
       this.fullDepartmentList = await this.fetchDepartmentList(accessToken);
       const rootDepartment = this.fullDepartmentList.find((department) => department.parentid === 0);
       this.fullUserList = await this.fetchUserList(accessToken, rootDepartment.id);

@@ -17,6 +17,7 @@
         :rules="[{ required: true, message: '回复内容不能为空' }]"
       />
       <van-field
+        style="display: none"
         name="uploadFileType"
         label="附件"
       >

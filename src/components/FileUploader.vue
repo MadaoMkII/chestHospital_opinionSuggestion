@@ -37,6 +37,7 @@
         :max-count="1"
         accept=".png, .jpg, .jpeg"
         upload-icon="add-o"
+        :before-read="imageFileFilter"
         :after-read="upload"
       />
     </template>
@@ -47,6 +48,7 @@
         :max-count="1"
         accept=".mp4"
         upload-icon="add-o"
+        :before-read="videoFileFilter"
         :after-read="upload"
         :max-size="10000 * 1024"
         @oversize="onOversize"
@@ -159,6 +161,24 @@ export default {
     }
   },
   methods: {
+    imageFileFilter(file) {
+      const types = ['png', 'jpg', 'jpeg'];
+      const type = file.type.split('/').pop().toLowerCase();
+      if (!types.includes(type)) {
+        this.$notify({ type: 'danger', message: '图片格式必须是 .png, .jpg, .jpeg' });
+        return false;
+      }
+      return true;
+    },
+    videoFileFilter(file) {
+      const types = ['mp4'];
+      const type = file.type.split('/').pop().toLowerCase();
+      if (!types.includes(type)) {
+        this.$notify({ type: 'danger', message: '视频格式必须是 .mp4' });
+        return false;
+      }
+      return true;
+    },
     async fetchJsApiTicket() {
       const response = await this.$axios.get('/api/user/get_jsapi_ticket');
       return response.data.data;
@@ -184,8 +204,8 @@ export default {
         const accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
         const formData = new FormData();
         formData.append('type', this.fileType);
-        if (this.fileType === 'image' && file.file.size > 2000 * 1024) {
-          const compressFile = await compressAccurately(file.file, 1024 * 2);
+        if (this.fileType === 'image' && file.file.size > 2000 * 1000) {
+          const compressFile = await compressAccurately(file.file, 1000 * 2);
           formData.append('media', compressFile);
         } else {
           formData.append('media', file.file);
@@ -240,6 +260,9 @@ export default {
             },
           });
         },
+        fail(e) {
+          alert(JSON.stringify(e));
+        },
       });
     },
     stopVoiceRecord() {
@@ -261,20 +284,24 @@ export default {
       const then = this;
       wx.playVoice({
         localId: then.voiceLocalId,
-      });
-      wx.onVoicePlayEnd({
         success() {
-          then.isPlayVoice = false;
+          then.isPlayVoice = true;
+          wx.onVoicePlayEnd({
+            success() {
+              then.isPlayVoice = false;
+            },
+          });
         },
       });
-      then.isPlayVoice = true;
     },
     stopVoice() {
       const then = this;
       wx.stopVoice({
         localId: then.voiceLocalId,
+        success() {
+          then.isPlayVoice = false;
+        },
       });
-      then.isPlayVoice = false;
     },
   },
 };

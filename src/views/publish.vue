@@ -73,6 +73,7 @@
       >
         <template #input>
           <van-radio-group
+            style="margin-bottom: -8px;"
             v-model="isAnonymous"
             direction="horizontal"
           >

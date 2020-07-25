@@ -32,7 +32,8 @@
     </van-radio-group>
     <template v-if="fileType === 'image'">
       <van-uploader
-        style="margin-bottom: -8px;"
+        class="custom-uploader"
+        :key="'image'"
         v-model="imageList"
         :max-count="1"
         accept=".png, .jpg, .jpeg"
@@ -43,7 +44,8 @@
     </template>
     <template v-else-if="fileType === 'video'">
       <van-uploader
-        style="margin-bottom: -8px;"
+        class="custom-uploader"
+        :key="'video'"
         v-model="videoList"
         :max-count="1"
         accept=".mp4, .mov"
@@ -52,7 +54,28 @@
         :after-read="upload"
         :max-size="10000 * 1024"
         @oversize="onOversize"
-      />
+        @delete="previewVideoDataURL = null"
+      >
+        <template
+          v-if="previewVideoDataURL"
+          #preview-cover
+        >
+          <video
+            ref="previewVideo"
+            style="width: 100%; height: 100%; background-color: #ccc;"
+            @click="fullscreenPlay"
+            autoplay
+            muted
+            loop
+          >
+            <source
+              :src="previewVideoDataURL"
+              type="video/mp4"
+            >
+            Your browser does not support the video tag.
+          </video>
+        </template>
+      </van-uploader>
     </template>
     <!--    <template v-else-if="fileType === 'file'">-->
     <!--      <van-uploader-->
@@ -137,6 +160,7 @@ export default {
       voiceMediaId: null,
       voiceLocalId: null,
       isInWeChat: false,
+      previewVideoDataURL: null,
     };
   },
   async created() {
@@ -159,8 +183,35 @@ export default {
     } catch (e) {
       this.isInWeChat = false;
     }
+
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        console.log(`Element: ${document.fullscreenElement.id} entered full-screen mode.`);
+      } else {
+        console.log('Leaving full-screen mode.');
+        this.$refs.previewVideo.pause();
+      }
+    });
   },
   methods: {
+    fullscreenPlay() {
+      if (this.iOS()) {
+        this.$refs.previewVideo.play();
+        return;
+      }
+      const elem = this.$refs.previewVideo;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+
+      elem.play();
+    },
     iOS() {
       return [
         'iPad Simulator',
@@ -233,6 +284,13 @@ export default {
             file.status = 'done';
             // eslint-disable-next-line no-param-reassign
             file.mediaId = response.data.media_id;
+
+            if (this.fileType === 'video') {
+              this.previewVideoDataURL = file.content;
+              setTimeout(() => {
+                this.$refs.previewVideo.pause();
+              }, 2000);
+            }
             break;
           default:
             // eslint-disable-next-line no-param-reassign
@@ -273,7 +331,8 @@ export default {
           });
         },
         fail(e) {
-          alert(JSON.stringify(e));
+          // alert(JSON.stringify(e));
+          console.log(e);
         },
       });
     },
@@ -318,3 +377,14 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+  .custom-uploader {
+    display: block;
+    &::v-deep {
+      .van-uploader__preview, .van-uploader__upload {
+        margin-bottom: 0;
+      }
+    }
+  }
+</style>

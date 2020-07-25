@@ -23,7 +23,7 @@
       <!--        文件-->
       <!--      </van-radio>-->
       <van-radio
-        v-if="isInWeChat"
+        v-if="isInWeChat && !iOS()"
         style="margin-bottom: 8px;"
         name="voice"
       >
@@ -46,7 +46,7 @@
         style="margin-bottom: -8px;"
         v-model="videoList"
         :max-count="1"
-        accept=".mp4"
+        accept=".mp4, .mov"
         upload-icon="add-o"
         :before-read="videoFileFilter"
         :after-read="upload"
@@ -161,6 +161,18 @@ export default {
     }
   },
   methods: {
+    iOS() {
+      return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod',
+      ].includes(navigator.platform)
+        // iPad on iOS 13 detection
+        || (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+    },
     imageFileFilter(file) {
       const types = ['png', 'jpg', 'jpeg'];
       const type = file.type.split('/').pop().toLowerCase();
@@ -171,10 +183,10 @@ export default {
       return true;
     },
     videoFileFilter(file) {
-      const types = ['mp4'];
+      const types = ['mp4', 'quicktime'];
       const type = file.type.split('/').pop().toLowerCase();
       if (!types.includes(type)) {
-        this.$notify({ type: 'danger', message: '视频格式必须是 .mp4' });
+        this.$notify({ type: 'danger', message: '视频格式必须是 .mp4, .mov' });
         return false;
       }
       return true;

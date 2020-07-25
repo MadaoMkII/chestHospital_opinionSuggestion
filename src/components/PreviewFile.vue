@@ -62,6 +62,10 @@ import BenzAMRRecorder from 'benz-amr-recorder';
 export default {
   props: {
     meta: {
+      type: Object,
+      required: true,
+    },
+    accessToken: {
       type: String,
       required: true,
     },
@@ -70,7 +74,6 @@ export default {
     return {
       isPlayVoice: false,
       amr: null,
-      accessToken: null,
     };
   },
   computed: {
@@ -80,11 +83,6 @@ export default {
       }
       return `/wx-api/cgi-bin/media/get?access_token=${this.accessToken}&media_id=${this.meta.mediaId}`;
     },
-  },
-  async created() {
-    if (!this.meta.localMediaId) {
-      this.accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
-    }
   },
   methods: {
     playVoice() {

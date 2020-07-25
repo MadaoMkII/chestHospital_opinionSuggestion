@@ -62,6 +62,7 @@
           <preview-file
             v-if="proposal.accessory"
             :meta="proposal.accessory"
+            :access-token="accessToken"
           />
         </template>
       </van-cell>
@@ -105,6 +106,7 @@
             <preview-file
               v-if="opt.detail.accessory"
               :meta="opt.detail.accessory"
+              :access-token="accessToken"
             />
           </template>
         </van-cell>
@@ -594,6 +596,7 @@ export default {
       isLoading: false,
       proposal: null,
       fromRouteName: null,
+      accessToken: '',
     };
   },
   computed: {
@@ -631,6 +634,7 @@ export default {
   },
   async created() {
     this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
+    this.accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {

@@ -61,7 +61,7 @@
           {{ proposal.content }}
           <preview-file
             v-if="proposal.accessory"
-            :filename="proposal.accessory"
+            :meta="proposal.accessory"
           />
         </template>
       </van-cell>
@@ -104,7 +104,7 @@
             <span class="highlight">回复：</span>{{ opt.detail.content }}
             <preview-file
               v-if="opt.detail.accessory"
-              :filename="opt.detail.accessory"
+              :meta="opt.detail.accessory"
             />
           </template>
         </van-cell>

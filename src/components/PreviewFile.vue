@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="fileType === 'image'"
+    v-if="meta.type === 'image' && (meta.localMediaId || accessToken)"
     style="margin-top: 10px;"
     @click="previewImage(fileUrl)"
   >
@@ -12,7 +12,7 @@
     />
   </div>
   <div
-    v-else-if="fileType === 'video'"
+    v-else-if="meta.type === 'video' && (meta.localMediaId || accessToken)"
     style="margin-top: 10px;"
   >
     <video
@@ -27,7 +27,7 @@
     </video>
   </div>
   <div
-    v-else-if="fileType === 'voice'"
+    v-else-if="meta.type === 'voice' && (meta.localMediaId || accessToken)"
     style="margin-top: 10px;"
   >
     <van-button
@@ -53,72 +53,37 @@
       停止播放
     </van-button>
   </div>
-  <div
-    v-else-if="fileType === 'file'"
-    style="margin-top: 10px;"
-  >
-    <van-button
-      icon="down"
-      type="primary"
-      size="small"
-      @click="downloadFile()"
-    >
-      下载附件
-    </van-button>
-  </div>
 </template>
 
 <script>
 import { ImagePreview } from 'vant';
-import sha1 from 'js-sha1';
 import BenzAMRRecorder from 'benz-amr-recorder';
-
-const { wx } = global;
 
 export default {
   props: {
-    filename: {
+    meta: {
       type: String,
       required: true,
     },
   },
   data() {
     return {
-      isInWeChat: false,
       isPlayVoice: false,
       amr: null,
+      accessToken: null,
     };
   },
   computed: {
-    fileType() {
-      return this.getFileType(this.filename);
-      // return 'video';
-      // return 'file';
-    },
     fileUrl() {
-      return `/api/getAccessory/${this.filename}`;
-      // return 'https://www.w3schools.com/html/mov_bbb.mp4';
+      if (this.meta.localMediaId) {
+        return `/api/getAccessory/${this.meta.localMediaId}`;
+      }
+      return `/wx-api/cgi-bin/media/get?access_token=${this.accessToken}&media_id=${this.meta.mediaId}`;
     },
   },
   async created() {
-    const jsApiTicket = await this.fetchJsApiTicket();
-    const timestamp = Math.floor(Date.now() / 1000);
-    const nonceStr = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    const signature = sha1(`jsapi_ticket=${jsApiTicket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${window.location.href}`);
-    try {
-      wx.agentConfig({
-        beta: true,
-        debug: true,
-        corpid: process.env.VUE_APP_WECHAT_APP_ID,
-        agentid: process.env.VUE_APP_WECHAT_AGENT_ID,
-        timestamp,
-        nonceStr,
-        signature,
-        jsApiList: ['downloadFile', 'playVoice', 'stopVoice'],
-      });
-      this.isInWeChat = true;
-    } catch (e) {
-      this.isInWeChat = false;
+    if (!this.meta.localMediaId) {
+      this.accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
     }
   },
   methods: {
@@ -142,38 +107,28 @@ export default {
       const response = await this.$axios.get('/api/user/get_jsapi_ticket');
       return response.data.data;
     },
-    downloadFile() {
-      const element = document.createElement('a');
-      element.setAttribute('href', this.fileUrl);
-      element.setAttribute('download', this.filename);
-      element.setAttribute('target', '_blank');
-      element.style.display = 'none';
-      document.body.appendChild(element);
-      element.click();
-      document.body.removeChild(element);
-    },
     previewImage(url) {
       ImagePreview([url]);
     },
-    getFileType(filename) {
-      const ext = filename.split('.').pop().toLowerCase();
-      switch (ext) {
-        case 'jpg':
-          return 'image';
-        case 'png':
-          return 'image';
-        case 'jpeg':
-          return 'image';
-        case 'mp4':
-          return 'video';
-        case 'mov':
-          return 'video';
-        case 'amr':
-          return 'voice';
-        default:
-          return 'file';
-      }
-    },
+    // getFileType(filename) {
+    //   const ext = filename.split('.').pop().toLowerCase();
+    //   switch (ext) {
+    //     case 'jpg':
+    //       return 'image';
+    //     case 'png':
+    //       return 'image';
+    //     case 'jpeg':
+    //       return 'image';
+    //     case 'mp4':
+    //       return 'video';
+    //     case 'mov':
+    //       return 'video';
+    //     case 'amr':
+    //       return 'voice';
+    //     default:
+    //       return 'file';
+    //   }
+    // },
   },
 };
 </script>

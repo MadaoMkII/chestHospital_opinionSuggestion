@@ -102,6 +102,7 @@ export default {
           uuid: this.$route.params.id,
           content: form.content,
           media_id: mediaId,
+          accessoryType: mediaId ? this.$refs.fileUploader.fileType : undefined,
         });
         this.$notify({ type: 'success', message: '回复发送成功' });
         this.$router.back();

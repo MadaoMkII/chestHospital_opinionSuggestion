@@ -199,7 +199,6 @@ export default {
         if (uploadFileList[0] && uploadFileList[0].status === 'done' && uploadFileList[0].mediaId) {
           mediaId = uploadFileList[0].mediaId;
         }
-        // 3Yyh54Zzv9sDMAzF9mSu19btDkaTU43C_ATf3I18Iz4ARxMk4i0sA_sG6vzrk1XCP
         await this.$axios.post('/api/opinionSuggestion/createOpinionSuggestion', {
           type: form.type,
           title: form.subject,
@@ -207,6 +206,7 @@ export default {
           content: form.content,
           isAnonymity: form.isAnonymous,
           media_id: mediaId,
+          accessoryType: mediaId ? this.$refs.fileUploader.fileType : undefined,
         });
         this.$notify({ type: 'success', message: `${this.type}发布成功` });
         this.$router.push({ name: 'my' });

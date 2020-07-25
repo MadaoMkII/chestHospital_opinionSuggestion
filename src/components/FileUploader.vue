@@ -331,8 +331,8 @@ export default {
           });
         },
         fail(e) {
-          // alert(JSON.stringify(e));
-          console.log(e);
+          alert(JSON.stringify(e));
+          // console.log(e);
         },
       });
     },

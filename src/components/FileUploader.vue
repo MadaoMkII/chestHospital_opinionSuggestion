@@ -145,10 +145,12 @@
 <script>
 import sha1 from 'js-sha1';
 import { compressAccurately } from 'image-conversion';
+import { mapState } from 'vuex';
 
 const { wx } = global;
 
 export default {
+  computed: mapState(['config']),
   data() {
     return {
       fileType: 'image',
@@ -172,8 +174,8 @@ export default {
       wx.agentConfig({
         beta: true,
         debug: true,
-        corpid: process.env.VUE_APP_WECHAT_APP_ID,
-        agentid: process.env.VUE_APP_WECHAT_AGENT_ID,
+        corpid: this.config.corpId,
+        agentid: this.config.agentId,
         timestamp,
         nonceStr,
         signature,

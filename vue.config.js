@@ -1,6 +1,6 @@
 module.exports = {
   productionSourceMap: false,
-  publicPath: '/feedback/',
+  publicPath: '/opinionsuggestion/',
   devServer: {
     proxy: {
       '/api/': {

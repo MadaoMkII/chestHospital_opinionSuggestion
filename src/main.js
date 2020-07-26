@@ -7,8 +7,14 @@ import './components';
 
 Vue.config.productionTip = false;
 
-new Vue({
-  router,
-  store,
-  render: (h) => h(App),
-}).$mount('#app');
+async function main() {
+  await store.dispatch('fetchConfig');
+  Vue.prototype.$axios.defaults.headers.common['Wechat-Agent-Id'] = store.state.config.agentId;
+  new Vue({
+    router,
+    store,
+    render: (h) => h(App),
+  }).$mount('#app');
+}
+
+main();

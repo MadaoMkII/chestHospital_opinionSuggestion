@@ -22,13 +22,13 @@
       <!--      >-->
       <!--        文件-->
       <!--      </van-radio>-->
-      <van-radio
-        v-if="isInWeChat && !iOS()"
-        style="margin-bottom: 8px;"
-        name="voice"
-      >
-        语音
-      </van-radio>
+      <!--      <van-radio-->
+      <!--        v-if="isInWeChat"-->
+      <!--        style="margin-bottom: 8px;"-->
+      <!--        name="voice"-->
+      <!--      >-->
+      <!--        语音-->
+      <!--      </van-radio>-->
     </van-radio-group>
     <template v-if="fileType === 'image'">
       <van-uploader

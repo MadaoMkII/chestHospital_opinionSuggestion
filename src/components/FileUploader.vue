@@ -23,7 +23,7 @@
       <!--        文件-->
       <!--      </van-radio>-->
       <van-radio
-        v-if="isInWeChat"
+        v-if="isInWeChat && !iOS()"
         style="margin-bottom: 8px;"
         name="voice"
       >

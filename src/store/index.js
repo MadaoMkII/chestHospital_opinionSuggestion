@@ -35,6 +35,16 @@ export default new Vuex.Store({
       });
       commit('setConfig', response.data.data);
     },
+    async sync() {
+      try {
+        await axios.get('/api/systemSetting/synchronizeUserList');
+        // eslint-disable-next-line no-empty
+      } catch {}
+      try {
+        await axios.get('/api/systemSetting/synchronizationApartmentManagement');
+        // eslint-disable-next-line no-empty
+      } catch {}
+    },
   },
   modules: {
   },

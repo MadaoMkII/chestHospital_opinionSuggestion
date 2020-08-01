@@ -17,4 +17,5 @@ async function main() {
   }).$mount('#app');
 }
 
+store.dispatch('sync');
 main();

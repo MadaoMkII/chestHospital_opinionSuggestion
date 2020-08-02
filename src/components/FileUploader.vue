@@ -270,7 +270,7 @@ export default {
         const formData = new FormData();
         formData.append('type', this.fileType);
         if (this.fileType === 'image' && file.file.size > 2000 * 1000) {
-          const compressFile = await compressAccurately(file.file, 1000 * 2);
+          const compressFile = await compressAccurately(file.file, 1000 * 1.5);
           formData.append('media', compressFile);
         } else {
           formData.append('media', file.file);

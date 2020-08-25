@@ -59,11 +59,15 @@
       >
         <template #label>
           {{ proposal.content }}
-          <preview-file
-            v-if="proposal.accessory"
-            :meta="proposal.accessory"
-            :access-token="accessToken"
-          />
+          <div
+            v-if="proposal.accessories && proposal.accessories.length > 0 && accessToken"
+            style="margin-top: 10px;"
+          >
+            <list-uploaded-files
+              :access-token="accessToken"
+              :data="proposal.accessories"
+            />
+          </div>
         </template>
       </van-cell>
     </van-cell-group>
@@ -103,11 +107,15 @@
           </template>
           <template #label>
             <span class="highlight">回复：</span>{{ opt.detail.content }}
-            <preview-file
-              v-if="opt.detail.accessory"
-              :meta="opt.detail.accessory"
-              :access-token="accessToken"
-            />
+            <div
+              v-if="opt.detail.accessories && opt.detail.accessories.length > 0 && accessToken"
+              style="margin-top: 10px;"
+            >
+              <list-uploaded-files
+                :access-token="accessToken"
+                :data="opt.detail.accessories"
+              />
+            </div>
           </template>
         </van-cell>
         <van-cell

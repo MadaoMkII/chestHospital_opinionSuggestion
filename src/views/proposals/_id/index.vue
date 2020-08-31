@@ -4,7 +4,7 @@
     :class="{ 'has-submit-bar': isUnionAdministratorStatus || isPrincipalStatus || isApprovalLeaderStatus || isCollaboratorStatus || isPublisherStatus }"
   >
     <van-nav-bar
-      title="意见建议"
+      title="建言献策"
       left-text="返回"
       left-arrow
       @click-left="routerBack()"

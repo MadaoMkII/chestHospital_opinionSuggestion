@@ -91,20 +91,20 @@ export default {
   },
   methods: {
     async fetchDepartmentList(accessToken) {
-      return (await this.$axios.get('/wx-api/cgi-bin/department/list', {
+      return (await this.$axios.get('/api/systemSetting/getApartmentManagementAsWechatFormat', {
         params: {
           access_token: accessToken,
         },
-      })).data.department;
+      })).data.data;
     },
     async fetchUserList(accessToken, rootDepartmentId) {
-      const userList = (await this.$axios.get('/wx-api/cgi-bin/user/list', {
+      const userList = (await this.$axios.get('/api/systemSetting/getUserList', {
         params: {
           access_token: accessToken,
           department_id: rootDepartmentId,
           fetch_child: 1,
         },
-      })).data.userlist;
+      })).data.data;
       for (let i = 0; i < userList.length; i += 1) {
         userList[i].isSelected = false;
       }

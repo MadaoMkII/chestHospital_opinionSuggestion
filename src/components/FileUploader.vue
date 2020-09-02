@@ -23,7 +23,7 @@
       <!--        文件-->
       <!--      </van-radio>-->
       <van-radio
-        v-if="isInWeChat"
+        v-if="isInWeChat && !iOS()"
         style="margin-bottom: 8px;"
         name="voice"
       >
@@ -32,7 +32,8 @@
     </van-radio-group>
     <template v-if="fileType === 'image'">
       <van-uploader
-        style="margin-bottom: -8px;"
+        class="custom-uploader"
+        :key="'image'"
         v-model="imageList"
         :max-count="1"
         accept=".png, .jpg, .jpeg"
@@ -43,16 +44,38 @@
     </template>
     <template v-else-if="fileType === 'video'">
       <van-uploader
-        style="margin-bottom: -8px;"
+        class="custom-uploader"
+        :key="'video'"
         v-model="videoList"
         :max-count="1"
-        accept=".mp4"
+        accept=".mp4, .mov"
         upload-icon="add-o"
         :before-read="videoFileFilter"
         :after-read="upload"
         :max-size="10000 * 1024"
         @oversize="onOversize"
-      />
+        @delete="previewVideoDataURL = null"
+      >
+        <template
+          v-if="previewVideoDataURL"
+          #preview-cover
+        >
+          <video
+            ref="previewVideo"
+            style="width: 100%; height: 100%; background-color: #ccc;"
+            @click="fullscreenPlay"
+            autoplay
+            muted
+            loop
+          >
+            <source
+              :src="previewVideoDataURL"
+              type="video/mp4"
+            >
+            Your browser does not support the video tag.
+          </video>
+        </template>
+      </van-uploader>
     </template>
     <!--    <template v-else-if="fileType === 'file'">-->
     <!--      <van-uploader-->
@@ -122,10 +145,12 @@
 <script>
 import sha1 from 'js-sha1';
 import { compressAccurately } from 'image-conversion';
+import { mapState } from 'vuex';
 
 const { wx } = global;
 
 export default {
+  computed: mapState(['config']),
   data() {
     return {
       fileType: 'image',
@@ -137,6 +162,7 @@ export default {
       voiceMediaId: null,
       voiceLocalId: null,
       isInWeChat: false,
+      previewVideoDataURL: null,
     };
   },
   async created() {
@@ -148,8 +174,8 @@ export default {
       wx.agentConfig({
         beta: true,
         debug: true,
-        corpid: process.env.VUE_APP_WECHAT_APP_ID,
-        agentid: process.env.VUE_APP_WECHAT_AGENT_ID,
+        corpid: this.config.corpId,
+        agentid: this.config.agentId,
         timestamp,
         nonceStr,
         signature,
@@ -159,8 +185,47 @@ export default {
     } catch (e) {
       this.isInWeChat = false;
     }
+
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        console.log(`Element: ${document.fullscreenElement.id} entered full-screen mode.`);
+      } else {
+        console.log('Leaving full-screen mode.');
+        this.$refs.previewVideo.pause();
+      }
+    });
   },
   methods: {
+    fullscreenPlay() {
+      if (this.iOS()) {
+        this.$refs.previewVideo.play();
+        return;
+      }
+      const elem = this.$refs.previewVideo;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+
+      elem.play();
+    },
+    iOS() {
+      return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod',
+      ].includes(navigator.platform)
+        // iPad on iOS 13 detection
+        || (navigator.userAgent.includes('Mac') && 'ontouchend' in document);
+    },
     imageFileFilter(file) {
       const types = ['png', 'jpg', 'jpeg'];
       const type = file.type.split('/').pop().toLowerCase();
@@ -171,10 +236,10 @@ export default {
       return true;
     },
     videoFileFilter(file) {
-      const types = ['mp4'];
+      const types = ['mp4', 'quicktime'];
       const type = file.type.split('/').pop().toLowerCase();
       if (!types.includes(type)) {
-        this.$notify({ type: 'danger', message: '视频格式必须是 .mp4' });
+        this.$notify({ type: 'danger', message: '视频格式必须是 .mp4, .mov' });
         return false;
       }
       return true;
@@ -205,7 +270,7 @@ export default {
         const formData = new FormData();
         formData.append('type', this.fileType);
         if (this.fileType === 'image' && file.file.size > 2000 * 1000) {
-          const compressFile = await compressAccurately(file.file, 1000 * 2);
+          const compressFile = await compressAccurately(file.file, 1000 * 1.5);
           formData.append('media', compressFile);
         } else {
           formData.append('media', file.file);
@@ -221,6 +286,13 @@ export default {
             file.status = 'done';
             // eslint-disable-next-line no-param-reassign
             file.mediaId = response.data.media_id;
+
+            if (this.fileType === 'video') {
+              this.previewVideoDataURL = file.content;
+              setTimeout(() => {
+                this.$refs.previewVideo.pause();
+              }, 2000);
+            }
             break;
           default:
             // eslint-disable-next-line no-param-reassign
@@ -261,7 +333,8 @@ export default {
           });
         },
         fail(e) {
-          alert(JSON.stringify(e));
+          // alert(JSON.stringify(e));
+          console.log(e);
         },
       });
     },
@@ -306,3 +379,14 @@ export default {
   },
 };
 </script>
+
+<style lang="scss" scoped>
+  .custom-uploader {
+    display: block;
+    &::v-deep {
+      .van-uploader__preview, .van-uploader__upload {
+        margin-bottom: 0;
+      }
+    }
+  }
+</style>

@@ -17,12 +17,11 @@
         :rules="[{ required: true, message: '回复内容不能为空' }]"
       />
       <van-field
-        style="display: none"
-        name="uploadFileType"
+        name="附件"
         label="附件"
       >
         <template #input>
-          <file-uploader ref="fileUploader" />
+          <form-uploader v-model="fileList" />
         </template>
       </van-field>
     </van-form>
@@ -58,51 +57,26 @@ export default {
     return {
       isLoading: false,
       content: '',
+      fileList: [],
     };
   },
   methods: {
     async onSubmit(form) {
-      if (this.isLoading) return;
-      let uploadFileList;
-      switch (this.$refs.fileUploader.fileType) {
-        case 'image':
-          uploadFileList = this.$refs.fileUploader.imageList;
-          break;
-        case 'video':
-          uploadFileList = this.$refs.fileUploader.videoList;
-          break;
-        case 'file':
-          uploadFileList = this.$refs.fileUploader.fileList;
-          break;
-        case 'voice':
-          if (this.$refs.fileUploader.voiceMediaId) {
-            uploadFileList = [{ status: this.$refs.fileUploader.isStartVoiceRecord ? 'uploading' : 'done', mediaId: this.$refs.fileUploader.voiceMediaId }];
-          } else {
-            uploadFileList = [];
-          }
-          break;
-        default:
-          uploadFileList = [];
-          break;
-      }
-      if (uploadFileList[0] && uploadFileList[0].status === 'uploading') {
-        if (this.$refs.fileUploader.fileType === 'voice') {
-          this.$notify({ type: 'danger', message: '录音正在进行，请完成录音后再试' });
-        } else {
-          this.$notify({ type: 'danger', message: '附件正在上传，请等待上传完成再试' });
-        }
+      if (this.fileList.find((file) => file.status === 'uploading') !== undefined) {
+        this.$notify({ type: 'danger', message: '附件正在上传，请等待上传完成再试' });
         return;
       }
+      if (this.isLoading) return;
       try {
         this.isLoading = true;
-        let mediaId;
-        if (uploadFileList[0] && uploadFileList[0].status === 'done' && uploadFileList[0].mediaId) {
-          mediaId = uploadFileList[0].mediaId;
+        const fileList = [];
+        for (let i = 0; i < form['附件'].length; i += 1) {
+          fileList.push({ media_id: form['附件'][i].mediaId, accessoryType: form['附件'][i].type });
         }
         await this.$axios.post('/api/opinionSuggestion/replyOpinionSuggestion', {
           uuid: this.$route.params.id,
           content: form.content,
-          media_id: mediaId,
+          media_ids: fileList,
         });
         this.$notify({ type: 'success', message: '回复发送成功' });
         this.$router.back();

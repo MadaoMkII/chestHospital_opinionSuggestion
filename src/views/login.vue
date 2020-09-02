@@ -3,18 +3,21 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
+  computed: mapState(['config']),
   mounted() {
-    const url = new URL(process.env.VUE_APP_WECHAT_REDIRECT_URI);
+    const url = new URL(this.config.redirectUrl);
     if (this.$route.query.redirect) {
-      url.searchParams.append('redirectURL', `/feedback${this.$route.query.redirect}`);
+      url.searchParams.append('redirectURL', `/opinionsuggestion${this.$route.query.redirect}`);
     }
     window.location = `https://open.weixin.qq.com/connect/oauth2/authorize?${new URLSearchParams({
-      appid: process.env.VUE_APP_WECHAT_APP_ID,
+      appid: this.config.corpId,
       redirect_uri: encodeURIComponent(url.href),
       response_type: 'code',
-      scope: process.env.VUE_APP_WECHAT_SCOPE,
-      agentid: process.env.VUE_APP_WECHAT_AGENT_ID,
+      scope: this.config.scope,
+      agentid: this.config.agentId,
       state: 'app',
     })}#wechat_redirect`;
   },

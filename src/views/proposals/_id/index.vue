@@ -4,7 +4,7 @@
     :class="{ 'has-submit-bar': isUnionAdministratorStatus || isPrincipalStatus || isApprovalLeaderStatus || isCollaboratorStatus || isPublisherStatus }"
   >
     <van-nav-bar
-      title="意见建议"
+      title="建言献策"
       left-text="返回"
       left-arrow
       @click-left="routerBack()"
@@ -59,10 +59,15 @@
       >
         <template #label>
           {{ proposal.content }}
-          <!--          <preview-file-->
-          <!--            v-if="proposal.accessory"-->
-          <!--            :filename="proposal.accessory"-->
-          <!--          />-->
+          <div
+            v-if="proposal.accessories && proposal.accessories.length > 0 && accessToken"
+            style="margin-top: 10px;"
+          >
+            <list-uploaded-files
+              :access-token="accessToken"
+              :data="proposal.accessories"
+            />
+          </div>
         </template>
       </van-cell>
     </van-cell-group>
@@ -102,10 +107,15 @@
           </template>
           <template #label>
             <span class="highlight">回复：</span>{{ opt.detail.content }}
-            <!--            <preview-file-->
-            <!--              v-if="opt.detail.accessory"-->
-            <!--              :filename="opt.detail.accessory"-->
-            <!--            />-->
+            <div
+              v-if="opt.detail.accessories && opt.detail.accessories.length > 0 && accessToken"
+              style="margin-top: 10px;"
+            >
+              <list-uploaded-files
+                :access-token="accessToken"
+                :data="opt.detail.accessories"
+              />
+            </div>
           </template>
         </van-cell>
         <van-cell
@@ -594,6 +604,7 @@ export default {
       isLoading: false,
       proposal: null,
       fromRouteName: null,
+      accessToken: '',
     };
   },
   computed: {
@@ -631,6 +642,7 @@ export default {
   },
   async created() {
     this.proposal = await this.fetchProposal({ uuid: this.$route.params.id });
+    this.accessToken = (await this.$axios.get('/api/user/getToken')).data.data;
   },
   beforeRouteEnter(to, from, next) {
     next((vm) => {
